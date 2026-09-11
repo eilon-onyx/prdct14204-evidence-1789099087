@@ -1,0 +1,62 @@
+Overview
+Guardian
+Inventory
+Findings
+Policies
+Fortify
+Manage
+Docs
+1
+AI Assets
+Local MCP Server (node)
+Local MCP Server (node)
+(Local File)
+MCP Server
+Latest
+Overview
+Runtime
+Users
+Runtime Policies
+Comments
+1 runtime policy assigned to this asset
+Risk Score
+App Risk Assessment at a Glance
+0
+10
+Pending assessment
+Asset Details
+An overview of the asset's details
+Discovered
+Description
+Local MCP server file or package. No public documentation available.
+Local
+add tag
+Device
+ip-172-31-90-152
+Sources
+Endpoint Scanner
+Usage Statistics
+User engagement and activity metrics
+Total Sessions
+0
+Unique Users
+0
+Tools
+0
+No tools connected to this app
+
+There is no content to display at this time.
+
+Asset Graph
+Showing 2 nodes
+1 edge
+Claude Code (ubuntu)
+Local MCP Server (node)
+Open Issues
+Showing 0 results
+No issues yet
+
+There are currently no issues. They will appear here once available.
+
+-
+TanStack Router

@@ -1,0 +1,31 @@
+################################################################
+# 18-other-tenant-guard.txt  (AT5)
+# Claim: the migration is tenant-scoped; it cannot change what any OTHER
+#        tenant resolves. Shared public.app_definitions is byte-identical
+#        before and after, so no cross-tenant identity is perturbed.
+# Captured (UTC): 2026-09-10T23:07:55Z
+################################################################
+
+public.app_definitions is the ONLY cross-tenant (shared) surface the merge could touch;
+every reference table repointed by the migration lives inside the tenant schema
+(onyx_security). The migration is invoked with TENANT_SCHEMAS=onyx_security, so its writes
+are confined to that schema by construction.
+
+BYTE-IDENTITY of the shared catalog across the apply:
+  BEFORE  rows=540  sha256=0bafbc048d4cbba7b71ee2ac4fbbb16a21a595b36bc6e02c564a7fb4e9c6e7c5
+  AFTER   rows=540  sha256=0bafbc048d4cbba7b71ee2ac4fbbb16a21a595b36bc6e02c564a7fb4e9c6e7c5
+  RESULT: sha256 MATCH -> public.app_definitions is byte-identical before and after.
+
+  diff before vs after:
+    (empty) IDENTICAL
+
+-- INTERPRETATION
+-- * This lab stack provisions exactly ONE tenant schema (onyx_security), so there is no second
+--   tenant's data to read directly. The cross-tenant guarantee is instead proven at the ONLY
+--   place a tenant-scoped merge could leak across tenants: the shared public.app_definitions
+--   catalog. It is byte-identical (same sha256, empty diff) before and after the apply, so any
+--   other tenant that keys off app_id 'python3' (or any other shared row) resolves exactly what
+--   it resolved before -- the merge changed nothing they can see.
+-- * This is enforced structurally, not incidentally: _IDENTITY_STRING_COLUMNS omits
+--   public.app_definitions / app_definition_versions from the re-key sweep, and the migration is
+--   scoped by TENANT_SCHEMAS. A merge cannot re-key or delete a shared row.

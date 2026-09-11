@@ -1,0 +1,118 @@
+################################################################
+# 23-settlement-inventory.txt  (AT8 clause 1 — the settlement-class list, DERIVED FROM THE WRITER'S
+#   OWN OUTCOME LABELS, with call-site citations. NOT copied from the test plan.)
+# test_plan.json at8 flow step 1: "Build the settlement-class inventory from the writer's own outcome
+#   labels/settlement sites (written-new, written-update, unchanged/deduped, skipped, parked/DLQ,
+#   lifecycle-stale — final list read from the code, not this plan)."
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Source of truth: backend_python/src/endpoint_asset_ingestion/metrics.py (the label taxonomy) plus the
+#   emission/settlement sites in ingestion/{mcp_writer,writers,object_processor}.py and
+#   consumer/message_handler.py. Line numbers are on the PR-branch head above.
+################################################################
+
+The lane's authoritative outcome taxonomy is the Literal/StrEnum label set in metrics.py; every
+settlement below is one of those label VALUES emitted at a concrete site. The canonical per-write
+trio is  WriteOutcome = Literal["created","matched","unchanged"]  (metrics.py:20), attributed to a
+(step, table) by RecordsWrittenLabels (metrics.py:200-206). Object- and message-grained settlements
+carry their own label classes. The MCP write path is the subject of this ticket, so each class is
+stated at MCP grain.
+
+============================================================================
+CLASS 1 — written-new            (WriteOutcome "created")
+============================================================================
+  A local MCP server whose app-definition identity did not exist is inserted as a NEW asset.
+  EMIT  mcp_writer.py:1218-1219
+        metrics.records_written.inc(RecordsWrittenLabels(step="mcp_upsert", table="assets",
+            outcome="created" if app_def.is_new else "matched"))
+  LABEL RecordsWrittenLabels.outcome (metrics.py:200-206); enum WriteOutcome (metrics.py:20)
+  IDENTITY the FILE the interpreter runs — build_local_mcp_identity(...) via
+        resolve_launcher_identity / resolve_mcp_local_version (common/services/mcp_identity.py);
+        version-level assets.unique_identifier from build_mcp_version_unique_identifier
+        (mcp_writer.py:1079). This is the ticket's core write.
+
+============================================================================
+CLASS 2 — written-update         (WriteOutcome "matched")
+============================================================================
+  The SAME app-definition already exists; the upsert MATCHES it and updates in place (e.g. a
+  changed arg/tool set, or a new content digest that re-keys to the same definition). Same emit
+  site, the  else "matched"  branch of mcp_writer.py:1218-1219 (fired when app_def.is_new is False).
+  DB idempotency for this class is the assets_unique_identifier_key / on_conflict_do_update pair
+  documented in 21-dedup-key.txt (asset.py:1374).
+
+============================================================================
+CLASS 3 — unchanged / deduped
+============================================================================
+  Two distinct mechanisms both settle a server WITHOUT a new/updated row:
+  (3a) OBJECT-SCOPED F0 DEDUP — a duplicate identity+connection already fully written earlier in the
+       SAME object returns the memoized asset id and skips the heavy upsert cascade.
+       SITE  mcp_writer.py:893-902 (is_dedupable gate; processed_identities memo hit -> return
+             already_written). Gate fingerprint _server_write_fingerprint (mcp_writer.py:285), gate
+             key at :892.
+  (3b) RE-INGESTION CONTENT-HASH SKIP — a coding-agent's whole inventory cascade (its MCP servers
+       included) is skipped when its content hash is unchanged since the last ingest.
+       LOG   writers.py:1004 "skipping unchanged agent inventory cascade (content-hash skip)"
+       METER writers.py:1183  metrics.agents_reingest_skipped.add(..., AgentReingestSkippedLabels)
+             (label metrics.py:279-285). MCP-grain gate: evaluate_mcp_ingestion_skip
+             (mcp_writer.py:1066+, "Content-hash skip gate (mirror of the Temporal gateway lane)").
+  This is the class 20-replay-after.txt exercised: a replayed identical payload settles here, no row.
+
+============================================================================
+CLASS 4 — skipped (no identifiable data — the bare-launcher guard)
+============================================================================
+  A launcher that names NO server (a bare interpreter like `node`/`python3` with no script, an
+  unresolved-variable path) resolves to NO identity and is DELIBERATELY NOT WRITTEN — the ticket's
+  central guard against minting a bare-interpreter asset.
+  SITE  mcp_writer.py:815-822
+        logger.info("skipping MCP server with no identifiable data",
+            reason="launcher resolved to no script identity (bare interpreter / unresolved
+                    entrypoint) — not writing a bare-launcher asset")
+  MECH  resolve_launcher_identity returns None (mcp_writer.py:345/347/579/582/600/777) -> the
+        _upsert_one_mcp_server skip guard fires (def :717; guard :740-777). Related per-agent skip:
+        empty coding-agent name -> AgentSkippedLabels(reason="empty_name") (metrics.py:269-276).
+  NOTE  This class is the at8 guard: "Neither lane mints a bare-launcher identity."
+
+============================================================================
+CLASS 5 — parked / DLQ           (poison)
+============================================================================
+  An object that can never be processed (no parseable scan record) is dead-lettered, observably.
+  SITE  consumer/message_handler.py:119-121 (ObjectParseError -> _park_poison, poison_reason
+        "unparseable"); :102-109 (empty-is-poison -> poison_reason "no_ingestible_object").
+  METER message_handler.py:132 metrics.poison_messages.inc(PoisonLabels(reason=...)) (label
+        metrics.py:218-221); :135 metrics.dead_letters.inc(); redeliveries at :81.
+  This is the class 22-poison-parked.txt exercised (DLQ depth 0->1, batch unharmed).
+
+============================================================================
+CLASS 6 — lifecycle-stale        (superseded / retired)
+============================================================================
+  (6a) VERSION-SUPERSEDE: a changed content digest is written as a NEW asset row sharing the
+       app_definition_id; the prior-digest row goes STALE (a documented end-state, NOT retired on
+       the scanner path). mcp_writer.py:78-80 ("...is written as a NEW asset and NOTHING retires the
+       row it supersedes"). This is the state at1/at5 lifecycle evidence rendered (one representative
+       row, stale digest).
+  (6b) ORPHAN RETIRE: the object-end supersede_unknown_version_orphans step soft-deletes a
+       connectionless `{app_definition}::unknown` sibling AFTER the keep-set reconcile, so a
+       registry-FAILURE `::unknown` orphan does not persist as a live duplicate.
+       mcp_writer.py:41-52 (module docstring: "This lane RETIRES that orphan once a concrete version
+       re-keys ... the old lane keeps the stale `::unknown` duplicate, the new lane [retires it]").
+  METER reconcile deletions -> ReconcileDeletionsLabels (metrics.py:230-233).
+
+============================================================================
+OBJECT-GATE settlements (the lane-arbitration switches, object grain)
+============================================================================
+  * skipped_flag_off        object_processor.py:104  metrics.objects.inc(ObjectLabels(
+                            outcome="skipped_flag_off"))  — the NEW in-process lane declines the
+                            object when the per-tenant `endpoint-asset-ingestion` flag is OFF; the
+                            body is never fetched. THIS is the switch that leaves a tenant to the OLD
+                            lane (at8 flow step 2: flag OFF on tenant A).
+  * skipped_unknown_tenant  object_processor.py:91   ObjectLabels(outcome="skipped_unknown_tenant").
+  * processed               object_processor.py:150  ObjectLabels(outcome="processed") — the object
+                            reached the writer (one or more of classes 1-6 settled per server).
+  Object enum: ObjectIngestionOutcome (object_processor.py:40-46); record-grain RecordLabels
+  (metrics.py:124-127: ok / unknown_tenant / wrong_source / parse_err).
+
+################################################################
+# The six MCP settlement classes above (1 written-new, 2 written-update, 3 unchanged/deduped,
+# 4 skipped-no-identity, 5 parked/DLQ, 6 lifecycle-stale) are the clause-1 inventory 24b-closure.txt
+# closes coverage against. Each is a label VALUE the lane actually emits at the cited site — read
+# from the code, not asserted by the plan.
+################################################################

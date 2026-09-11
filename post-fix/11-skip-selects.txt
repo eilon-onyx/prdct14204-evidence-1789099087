@@ -1,0 +1,81 @@
+==================================================================
+at4 — Skip-not-junk: file-less launcher (bare node []) is skipped, never written
+Captured: 2026-09-10T19:47:52Z  | image: local-fix-467e26370e | tenant: 61750f27-8fbd-42a4-80cf-4191cfb2371a
+==================================================================
+
+### BEFORE the scan ###
+-- total live MCP assets for tenant --
+ mcp_assets 
+------------
+         11
+(1 row)
+
+
+-- any tenant asset keyed on a bare 'node' launcher? (expect 0 rows) --
+ id |           app_definition_id            |                unique_identifier                
+----+----------------------------------------+-------------------------------------------------
+ 28 | node::ec21b2798e01bf08c30c2cf83db838bd | node::ec21b2798e01bf08c30c2cf83db838bd::unknown
+(1 row)
+
+
+-- any public.app_definitions row named 'node'? (expect 0 rows) --
+ app_id | name | sub_type 
+--------+------+----------
+(0 rows)
+
+
+-- the pre-existing node::<serial> row (id 28): a LEGACY base-run artifact, NOT junk from this scan.
+-- In the pre-fix base run BOTH the filemcp.js entry {node,[/root/filemcp.js]} AND the bare-node
+-- entry {node,[]} collapsed onto the SAME device-scoped node::<serial> id (the bug). Post-fix, filemcp.js
+-- converges to local:...:filemcp.js and the bare-node entry is SKIPPED, so this scan must leave id 28
+-- untouched (it is folded by the at5 migration). Recording its timestamps to prove no post-fix write: --
+ id |           app_definition_id            |          created_at           |          updated_at           | is_deleted 
+----+----------------------------------------+-------------------------------+-------------------------------+------------
+ 28 | node::ec21b2798e01bf08c30c2cf83db838bd | 2026-09-10 14:08:53.474488+00 | 2026-09-10 19:08:47.651266+00 | f
+(1 row)
+
+
+### AFTER the scan (scan_run 3dba135b-3cf4-4f9b-82c2-3e7ff1b56fb2) ###
+-- total live MCP assets for tenant (unchanged: bare-node minted nothing) --
+ mcp_assets 
+------------
+         11
+(1 row)
+
+
+-- node-keyed rows after the scan: still exactly id 28, updated_at UNCHANGED (19:08:47) => this scan wrote nothing to it --
+ id |           app_definition_id            |          created_at           |          updated_at           | is_deleted 
+----+----------------------------------------+-------------------------------+-------------------------------+------------
+ 28 | node::ec21b2798e01bf08c30c2cf83db838bd | 2026-09-10 14:08:53.474488+00 | 2026-09-10 19:08:47.651266+00 | f
+(1 row)
+
+
+-- no bare 'node' app_definition landed in public from this run (expect 0) --
+ app_id | name 
+--------+------
+(0 rows)
+
+
+-- the converged local: assets this scan (re)affirmed, proving the scan DID run and wrote the resolvable servers (contrast: bare-node skipped) --
+ id |                     app_definition_id                      |                             version                              |          updated_at           
+----+------------------------------------------------------------+------------------------------------------------------------------+-------------------------------
+ 82 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | 2026-09-10 19:08:47.651266+00
+ 84 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts | 922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab | 2026-09-10 19:08:47.651266+00
+ 85 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py       | unknown                                                          | 2026-09-10 18:46:50.875874+00
+ 86 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js      | 5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5 | 2026-09-10 19:08:47.651266+00
+(4 rows)
+
+
+-- NOTE: updated_at on the converged rows is unchanged because the re-scan's upsert is
+-- content-idempotent (identical digests) — a no-op update, which is itself proof of stable
+-- convergence. That THIS scan (trace 4ea3eb..., scan_run 3dba135b) was processed by the lane is
+-- shown by the upsert log lines below (same trace_id as the skip line above):
+2026-09-10T19:49:30.192368Z  unique_identifier=endpoint_claude-code::ec21b2798e01bf08c30c2cf83db838bd
+2026-09-10T19:49:30.287667Z  unique_identifier=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+2026-09-10T19:49:30.382149Z  unique_identifier=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+2026-09-10T19:49:30.444164Z  unique_identifier=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts::922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab
+2026-09-10T19:49:30.505918Z  unique_identifier=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py::unknown
+2026-09-10T19:49:30.583469Z  unique_identifier=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js::5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5
+2026-09-10T19:49:30.647874Z  unique_identifier=poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown
+2026-09-10T19:49:30.705603Z  unique_identifier=@modelcontextprotocol/server-everything::2026.8.31
+2026-09-10T19:49:30.766994Z  unique_identifier=endpoint_claude-code::ec21b2798e01bf08c30c2cf83db838bd

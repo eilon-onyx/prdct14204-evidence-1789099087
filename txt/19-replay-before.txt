@@ -1,0 +1,55 @@
+################################################################
+# 19-replay-before.txt  (AT7 — replay baseline snapshot, BEFORE any replay)
+# test_plan.json at7 flow step 1: "snapshot row counts + full row contents for the
+#   run's assets/mcp_servers/asset_connections/app_definition_versions."
+# Deployed lane image: localhost:5001/onyx/endpoint-asset-ingestion:local-fix-e6a46a3e36
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-10T23:52Z  (state == the at1 post-fix settled state)
+#
+# Snapshot tool: work-prdct14204/at7_snapshot.sh — MCP-server assets (assets JOIN mcp_servers),
+#   asset_connections to MCP assets, app_definition_versions + public.app_definitions for local:
+#   identities. TIMESTAMP COLUMNS ARE EXCLUDED so a diff shows only real create/dup/resurrect changes.
+################################################################
+
+### COUNTS ###
+assets(MCP live):        8
+assets(MCP total):       8
+mcp_servers:             8
+asset_connections(live): 5
+asset_connections(total):8
+app_definition_versions: 15
+app_definitions(public): 540
+local: app_defs (public):4
+
+### ASSETS (MCP, content columns; ordered by app_definition_id,version) ###
+@modelcontextprotocol/server-everything|2026.8.31|Everything MCP Server|AssetTypeMCP|AssetStatusDiscovered|f|Npm
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js|5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5|Local MCP Server (filemcp.js)|AssetTypeMCP|AssetStatusDiscovered|f|File
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py|unknown|Local MCP Server (server.py)|AssetTypeMCP|AssetStatusDiscovered|f|File
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350|Local MCP Server (weather/main.py)|AssetTypeMCP|AssetStatusDiscovered|f|File
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|unknown|Local MCP Server (weather/main.py)|AssetTypeMCP|AssetStatusDiscovered|f|File
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts|922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab|Local MCP Server (weather/main.ts)|AssetTypeMCP|AssetStatusDiscovered|f|File
+node::ec21b2798e01bf08c30c2cf83db838bd|unknown|Local MCP Server (node)|AssetTypeMCP|AssetStatusDiscovered|f|File
+poetry::ec21b2798e01bf08c30c2cf83db838bd|unknown|Local MCP Server (poetry)|AssetTypeMCP|AssetStatusDiscovered|f|File
+
+### ASSET_CONNECTIONS (to MCP assets; content columns) ###
+@modelcontextprotocol/server-everything|2026.8.31|AgentToMcp|t
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js|5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5|AgentToMcp|f
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py|unknown|AgentToMcp|f
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350|AgentToMcp|t
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|unknown|AgentToMcp|f
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts|922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab|AgentToMcp|f
+node::ec21b2798e01bf08c30c2cf83db838bd|unknown|AgentToMcp|t
+poetry::ec21b2798e01bf08c30c2cf83db838bd|unknown|AgentToMcp|f
+
+### APP_DEFINITION_VERSIONS for local: identities (content columns) ###
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js::5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py::unknown
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::unknown
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts::922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab
+
+### PUBLIC.APP_DEFINITIONS local: identities ###
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js|Local MCP Server (filemcp.js)
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py|Local MCP Server (server.py)
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|Local MCP Server (weather/main.py)
+local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts|Local MCP Server (weather/main.ts)

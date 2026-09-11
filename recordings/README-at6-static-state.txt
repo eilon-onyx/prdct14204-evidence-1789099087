@@ -1,0 +1,1 @@
+# at6 is assertion_class static-state: annotated in-context screenshots under evidence/pre-fix/ are the class evidence; no recording is demanded. (A stray webm from a bounced-login session was removed as misleading.)

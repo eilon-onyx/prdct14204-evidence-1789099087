@@ -1,0 +1,23 @@
+== SETUP drivability proof: real map MCP gateway session (pre-existing case, frozen base) ==
+machine: ip-172-31-90-152 (lab EC2). Installed via the REAL distributed installer:
+  curl http://localhost:18000/<MCP_GATEWAY_DEV_KEY>/mcp_gateway_install.sh | SCANNER_BASE_URL=http://localhost:18000 ONYX_API_KEY=<key> bash
+  (dist endpoint tunneled: ssh -R 18000:localhost:18000; Kong already on the rail :8080)
+
+-- one real MCP tool-call transited the gateway (gateway log, 14:34:55Z):
+   "Requests intercepted" byMethod {"tools/list":1} then {"tools/call":1}, server python3 /srv/weather/main.py,
+   fileContentHash 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 (== scanner-side normalized hash)
+
+-- mirror upload rode Kong /mcp-gateway -> Vector -> S3:
+   s3://ingestion/tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789050922-0f281522-....log (2359 bytes)
+
+-- endpoint-gateway-ingestion lane consumed it (pod logs 14:35:26Z):
+   'Created usage session events' session_id=277 total_tool_calls=1 loaded_from_refs=True
+   'started MCP downstream' workflow=McpCveScanWorkflow  -> outcome=processed
+-- usage session written by the gateway lane:
+ id  | app_id |          created_at           
+-----+--------+-------------------------------
+ 277 |        | 2026-09-10 14:35:25.928978+00
+ 276 |     22 | 2026-09-02 05:24:17.627532+00
+ 275 |     22 | 2026-09-04 15:17:52.046426+00
+(3 rows)
+

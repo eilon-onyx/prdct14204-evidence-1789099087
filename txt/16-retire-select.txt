@@ -1,0 +1,54 @@
+################################################################
+# 16-retire-select.txt  (AT5)
+# Claim: the migration RETIRES the legacy interpreter-keyed asset AFTER
+#        repointing/carrying its references onto the converged identity
+#        (repoint-then-retire ordering; a soft retire, never a bare delete).
+# Legacy identity : asset 31 / app_definition_id 'python3'
+# Converged ident.: asset 82 / app_definition_id 'local:<tenant>:weather/main.py'
+# Captured (UTC): 2026-09-10T23:06:55Z
+################################################################
+
+===== assets: legacy retired (is_deleted=t), converged live (is_deleted=f) =====
+SET
+ id |                name                |                     app_definition_id                      | is_deleted |          updated_at           
+----+------------------------------------+------------------------------------------------------------+------------+-------------------------------
+ 31 | Local MCP Server (python3)         | python3                                                    | t          | 2026-09-10 23:02:03.278996+00
+ 82 | Local MCP Server (weather/main.py) | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | f          | 2026-09-10 19:08:47.651266+00
+(2 rows)
+
+
+===== repoint-then-retire ORDERING (observable timestamps, same migration transaction) =====
+-- The reference-carry write onto the CONVERGED identity must precede the legacy asset's soft-retire.
+-- access_control carries the operator sanction onto the converged identity (a reference carry);
+-- assets.updated_at on asset 31 is the soft-retire of the loser. Ordering:
+SET
+                               step                                |          updated_at           
+-------------------------------------------------------------------+-------------------------------
+ access_control: carry sanction onto CONVERGED (reference repoint) | 2026-09-10 23:02:02.406891+00
+ assets: RETIRE legacy asset 31 (is_deleted=t)                     | 2026-09-10 23:02:03.278996+00
+(2 rows)
+
+
+-- OBSERVED: carry at 23:02:02.406891  <  retire at 23:02:03.278996  (repoint precedes retire).
+
+===== the legacy fork's OWN access rule is left standing (by design) =====
+SET
+                  id                  | app_definition_id |   status   |          created_at          
+--------------------------------------+-------------------+------------+------------------------------
+ a9c61770-1725-477e-a2db-3638cb4d2dea | python3           | Sanctioned | 2026-09-10 22:56:35.69798+00
+(1 row)
+
+
+-- INTERPRETATION
+-- * The migration runs as ONE transaction: it collapses/repoints every reference onto the
+--   converged identity and only then soft-retires the loser. The two observable update
+--   timestamps above show that ordering directly (carry 23:02:02 < retire 23:02:03).
+-- * is_deleted=t is a SOFT retire (row preserved), NOT a hard delete. get_asset_id_for_version
+--   filters on app_definition_id/version/type and does NOT filter is_deleted, so a stale
+--   package-cache holder can still resolve the fork asset id post-merge; its access rules must
+--   remain readable -- which is why the legacy 'python3' access_control row above is left
+--   standing on purpose (_merge_access_control docstring). The converged identity carries the
+--   operator's Sanctioned decision exactly once (row d5bd0856); the fork's own row is inert
+--   over-block that goes away only as caches drain.
+-- * No row is ever hand-deleted or re-keyed by SQL: the retire is the migration workflow's own
+--   soft-delete, and public.app_definitions is never touched (see 17/18).

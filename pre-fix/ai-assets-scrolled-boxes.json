@@ -1,0 +1,23 @@
+[
+ {
+  "label": "Local MCP Server (node)",
+  "x": 104,
+  "y": 709,
+  "width": 2715,
+  "height": 72
+ },
+ {
+  "label": "Local MCP Server (poetry)",
+  "x": 104,
+  "y": 637,
+  "width": 2715,
+  "height": 72
+ },
+ {
+  "label": "uv",
+  "x": 104,
+  "y": 781,
+  "width": 2715,
+  "height": 72
+ }
+]

@@ -1,0 +1,67 @@
+================================================================================
+at2 evidence 07 — lane convergence: the gateway lane landed on the scanner's row
+Captured: 2026-09-10T21:41:40Z
+Query surface: onyx_security tenant DB (kind-slate/onyxd postgres-1)
+Fixed image deployed both lanes: endpoint-asset-ingestion:local-fix-578b9e1af3
+Timeline: seed corpus @14:08-14:35 | fixed scanner scan @18:46 | fixed gateway tool call @21:24 & re-drive @21:36
+================================================================================
+SET
+
+=== (A) weather/main.py: ONE live asset row, BOTH lanes, per-row source set ===
+ id |                     app_definition_id                      |                                                      unique_identifier                                                       | is_deleted |      sources       
+----+------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+------------+--------------------
+ 82 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | f          | mcpGateway,scanner
+(1 row)
+
+
+=== (B) GROUP COUNT for this server (expect exactly 1 — lanes did NOT fork) ===
+                     app_definition_id                      | live_asset_rows 
+------------------------------------------------------------+-----------------
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py |               1
+(1 row)
+
+
+=== (C) BYTE-EQUAL: app_definition_id == unique_identifier stem, and BOTH lanes on the SAME asset_id ===
+ id | appdef_equals_uid_stem |                          version_digest                          | has_scanner_lane | has_gateway_lane 
+----+------------------------+------------------------------------------------------------------+------------------+------------------
+ 82 | t                      | 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | t                | t
+(1 row)
+
+
+================================================================================
+=== GUARD: no BARE-LAUNCHER identity was NEWLY keyed by the fixed lanes ==========
+================================================================================
+
+=== (D) The bare-launcher rows that exist are ALL seed-corpus (created 14:08-14:35, ===
+=== BEFORE the fixed image + before any drive). They are the legacy interpreter- ===
+=== keyed production state the at5 migration folds; at2 forbids NEW ones only. ===
+ id |                unique_identifier                |          created_at           |        srcs        |      newest_source_touch      
+----+-------------------------------------------------+-------------------------------+--------------------+-------------------------------
+ 25 | python::unknown                                 | 2026-09-10 14:08:53.17434+00  | scanner            | 2026-09-10 14:08:53.212396+00
+ 26 | bun::unknown                                    | 2026-09-10 14:08:53.284388+00 | scanner            | 2026-09-10 14:08:53.316021+00
+ 27 | uv::unknown                                     | 2026-09-10 14:08:53.38453+00  | scanner            | 2026-09-10 14:08:53.41328+00
+ 28 | node::ec21b2798e01bf08c30c2cf83db838bd::unknown | 2026-09-10 14:08:53.474488+00 | scanner            | 2026-09-10 14:08:53.504391+00
+ 31 | python3::unknown                                | 2026-09-10 14:08:53.70649+00  | mcpGateway,scanner | 2026-09-10 14:35:25.887686+00
+(5 rows)
+
+
+=== (E) THE at2 GUARD ASSERTION: zero bare-launcher asset rows CREATED, and zero ===
+=== bare-launcher sources TOUCHED, at/after the fixed lanes started (>= 18:00). ===
+ bare_rows_created_by_fixed_lanes | bare_sources_touched_by_fixed_lanes 
+----------------------------------+-------------------------------------
+                                0 |                                   0
+(1 row)
+
+
+=== (F) What the fixed lanes DID write (every asset_source touched >= 18:00): only ===
+=== local:/package identities, never a bare interpreter. id 82 = both lanes. ===
+ asset_id |                                                      unique_identifier                                                       |   source   |          updated_at           
+----------+------------------------------------------------------------------------------------------------------------------------------+------------+-------------------------------
+       81 | @modelcontextprotocol/server-everything::2026.8.31                                                                           | scanner    | 2026-09-10 18:46:29.942994+00
+       82 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | scanner    | 2026-09-10 18:46:30.025828+00
+       84 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts::922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab | scanner    | 2026-09-10 18:46:30.190991+00
+       85 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py::unknown                                                                | scanner    | 2026-09-10 18:46:30.282932+00
+       86 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js::5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5      | scanner    | 2026-09-10 18:46:30.385181+00
+       82 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | mcpGateway | 2026-09-10 21:24:47.209886+00
+(6 rows)
+

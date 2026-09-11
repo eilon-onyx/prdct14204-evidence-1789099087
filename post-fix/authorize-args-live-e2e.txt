@@ -1,0 +1,34 @@
+Bugbot HIGH — Authorize path omits launcher args — LIVE front-door e2e proof
+==========================================================================
+Ticket: PRDCT-14204 | PR #13362 | branch factory-eval-v32/PRDCT-14204
+PR-branch HEAD: e1b1a67784bf73def753c699a6b853698b07ea37
+Captured (UTC): 2026-09-11T05:51:38Z
+Deployed pod:   sanitization-7b8d55779b-4dhv2 (namespace onyxd) — carries the fix via Tilt live-sync:
+  access_control.py:276  if stdio_command and determine_mcp_source_type(remote_url, stdio_command, args=stdio_args) == McpSourceType.FILE:
+
+Front door: POST /api/sanitization/v1/access-control/authorize/mcp/{client_info}
+Auth: X-Consumer-Username: probe@61750f27-8fbd-42a4-80cf-4191cfb2371a (Kong-consumer path)
+client_info = urlsafe_b64(zlib.compress(json)) of the stdio session below.
+
+Seeded scenario (schema onyx_security, live DB):
+  asset  local:<tenant>:authz-args-probe.py  version=eeee...(64)  [MCP / MCP_SERVER]
+  access_control  Sanctioned  app_definition_id=local:<tenant>:authz-args-probe.py   (app-wide)
+  access_control  Unsanctioned  asset_id=<content-digest asset>                       (version-pinned)
+  mcp_package_cache  cache_key_hash=sha256('stdio:python3 authz-args-probe.py') -> that app_definition_id
+
+--------------------------------------------------------------------------
+PROBE — stdioCliArgs {command: python3, args: [authz-args-probe.py]} + fileContentHash=eee...:
+  the interpreter-launched command MUST type FILE, key local:+content-digest,
+  and reach the version-pinned Unsanctioned rule -> BLOCK
+--------------------------------------------------------------------------
+HTTP 200
+{"action":"block","reason":"MCP server 'local:61750f27-8fbd-42a4-80cf-4191cfb2371a:authz-args-probe.py (version eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)' is not authorized for use in your organization and has been blocked by Onyx."}
+
+--------------------------------------------------------------------------
+CONTROL — same server, NO fileContentHash: no version pin, so resolution
+  lands on the app-wide Sanctioned rule -> ALLOW. This differential proves
+  the block above is specifically the content-digest version rule the fix
+  reaches, not a blanket deny.
+--------------------------------------------------------------------------
+HTTP 200
+{"action":"allow","reason":null}

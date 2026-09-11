@@ -1,0 +1,74 @@
+################################################################
+# 22-poison-parked.txt  (AT7 — a malformed object is PARKED observably, batch unharmed)
+# test_plan.json at7 flow step 6: "Poison: one malformed JSONL payload through the front door;
+#   show it parked (DLQ / skip-with-signal) with the rest of the batch unharmed."
+# Guard: "the malformed object is not silently dropped (its parking is observable)."
+# Deployed lane image: localhost:5001/onyx/endpoint-asset-ingestion:local-fix-e6a46a3e36
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-11T00:03Z
+################################################################
+
+===== (A) THE FRONT DOOR IS KONG KEY-AUTH (not a hand-sent queue message / not a direct S3 drop) =====
+The poison rode the real Kong ingest front door, proven by the key-auth guard:
+  POST /mcp-scanner  WITHOUT apikey  -> HTTP 401   (Kong key-auth rejects; traffic goes THROUGH Kong)
+  POST /mcp-scanner  WITH   apikey   -> HTTP 200   (registered INGESTION_DEV_API_KEY consumer 'ingestion')
+Kong proxy: onyx-onyxd-platform-gateway-proxy:80 ; Host: ingest-onyx.onyxd.svc.cluster.local
+-> Vector -> S3 (source=mcp-scanner) -> SQS endpoint-asset-ingestion -> the running lane.
+
+===== (B) THE MALFORMED PAYLOAD =====
+A single genuine scanner 'scan' record whose codingAgent is structurally broken (a string, not an
+object). This is exactly the shape extract.py counts as a scan record but cannot parse into an asset:
+  {"source_type":"mcp-scanner","method":"scan","metadata":{},
+   "data":{"codingAgent":"POISON-broken-not-an-object"},
+   "timestamp":"...","poison_probe":"at7-unparseable-scan-1789084977"}
+Vector flushed it to S3 as:
+  tenant=61750f27-.../source=mcp-scanner/date=2026-09-11/1789084987-60bf6fbc-6309-4f64-9fde-3f987a1a365f.log
+
+===== (C) THE LANE PARKED IT — OBSERVABLE, NOT SILENTLY DROPPED (pod logs) =====
+[warning] scan record has no parseable codingAgent object
+   endpoint_asset_ingestion.ingestion.extract  extract.py:808
+   s3_key='.../date=2026-09-11/1789084987-60bf6fbc-...log'  trace_id=9e8bb7435a576a25ef1ddb9f51cc4d74
+
+[warning] poison object — unprocessable, dead-lettering
+   endpoint_asset_ingestion.consumer.message_handler  message_handler.py:120
+   message_id=78864301-037d-4498-bd95-3042d3ea27e9
+   reason='scanner object had 1 scan record(s), none with a parseable codingAgent — unprocessable'
+
+[info]    Moved message to DLQ
+   common_core.services.queue.sqs  sqs.py:355
+   message_id=78864301-037d-4498-bd95-3042d3ea27e9
+   reason='scanner object had 1 scan record(s), none with a parseable codingAgent — unprocessable'
+
+===== (D) THE DLQ RECEIVED IT — depth 0 -> 1, message carries the park reason =====
+  endpoint-asset-ingestion-dlq  ApproximateNumberOfMessages: 0 -> 1
+  DLQ message attributes:
+    error_reason        = scanner object had 1 scan record(s), none with a parseable codingAgent — unprocessable
+    original_queue      = http://localstack:4566/000000000000/endpoint-asset-ingestion
+    original_message_id = 78864301-037d-4498-bd95-3042d3ea27e9   (== the parked message above)
+    traceparent         = 00-9e8bb7435a576a25ef1ddb9f51cc4d74-54069c9705f65405-01  (links to the lane trace)
+  body = the genuine s3:ObjectCreated:Put event for the poison object (not a synthesized message).
+
+===== (E) THE REST OF THE BATCH / INVENTORY IS UNHARMED =====
+Snapshot after the poison, diffed against the pre-poison baseline (19-replay-before / beforeB):
+  $ diff  beforeB(snapshot)  after-poison(snapshot)
+  (no output) — IDENTICAL. The poison object wrote ZERO rows: no asset, no mcp_server, no connection,
+  no app_definition_version, no catalog row. It was isolated to the DLQ; the existing 8 MCP assets and
+  their versions/connections are untouched.
+
+===== (F) PER-LINE ISOLATION (the design that keeps a mixed batch's good records) =====
+A single bad LINE inside an otherwise-good object is counted and skipped, and the object still ingests
+its good records — only an object that is ENTIRELY unusable is parked:
+  pipeline.route_lines (pipeline.py:113-138): json.loads per line; JSONDecodeError/UnicodeDecodeError
+    -> malformed += 1; continue; logs "scanner object contained malformed lines". The whole object is
+    escalated to poison ONLY when non_blank > 0 and NOT records (nothing parseable at all).
+  extract.extract_inventory (extract.py:846): raises ObjectParseError only when
+    scan_records > 0 AND unparseable_scan_records == scan_records AND produced_nothing.
+This is the lane's deliberate fix for the old Temporal lane, where one bad line poisoned the whole object.
+
+################################################################
+# VERDICT (at7 poison):
+#  * PARKED, OBSERVABLE  — extract warning -> "poison object ... dead-lettering" -> "Moved message to DLQ"
+#    -> DLQ depth 0->1 with error_reason + original_message_id. Not a silent drop.            ✓
+#  * BATCH UNHARMED      — inventory snapshot IDENTICAL; the poison wrote zero rows.           ✓
+#  * FRONT DOOR          — rode Kong key-auth (401 without key, 200 with); real S3 event.      ✓
+################################################################

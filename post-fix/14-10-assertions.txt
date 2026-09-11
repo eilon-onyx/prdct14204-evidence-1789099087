@@ -1,0 +1,29 @@
+TOTAL visible MCP rows: 11
+  row[0]: Local MCP Server (filemcp.js) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 1
+  row[1]: Local MCP Server (server.py) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10
+  row[2]: Local MCP Server (weather/main.ts) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 
+  row[3]: Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Sanctioned - MCP Gateway +1 environment: production L0:
+  row[4]: Everything MCP Server MCP NPM 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No acti
+  row[5]: Local MCP Server (poetry) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2
+  row[6]: ClickHouse MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 5 days ago
+  row[7]: Task Master AI MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 8 days ago
+  row[8]: Sentry MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 7 days ago
+  row[9]: Context7 MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 9 days ago
+  row[10]: Local MCP Server (node) MCP Local File 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 202
+ASSERT converged "Local MCP Server (weather/main.py)": rows=1 OK(exactly one)
+ASSERT converged "Local MCP Server (weather/main.ts)": rows=1 OK(exactly one)
+ASSERT converged "Local MCP Server (server.py)": rows=1 OK(exactly one)
+ASSERT converged "Local MCP Server (filemcp.js)": rows=1 OK(exactly one)
+ASSERT residual GONE "Python MCP Server": rows=0 OK(absent)
+ASSERT residual GONE "Bun MCP Server": rows=0 OK(absent)
+ASSERT residual GONE "uv MCP Server": rows=0 OK(absent)
+ASSERT residual GONE "Local MCP Server (python3)": rows=0 OK(absent)
+WROTE 14-one-row-after-migration.png
+ASSERT node-launched file server is script-named (filemcp.js): rows=1 OK
+ASSERT no interpreter-junk row "Python MCP Server": rows=0 OK
+ASSERT no interpreter-junk row "Bun MCP Server": rows=0 OK
+ASSERT no interpreter-junk row "uv MCP Server": rows=0 OK
+ASSERT no interpreter-junk row "Local MCP Server (python3)": rows=0 OK
+NOTE device-scoped file-less launcher "Local MCP Server (node)": rows=1 (correct fallback, not junk)
+NOTE device-scoped file-less launcher "Local MCP Server (poetry)": rows=1 (correct fallback, not junk)
+WROTE 10-no-node-junk.png

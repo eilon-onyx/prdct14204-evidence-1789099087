@@ -1,0 +1,1 @@
+13 recapture outlined: ["CONVERGED: Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Discovered - MCP Gateway +1 L0: Asset 2 Sep 1","LEGACY: Local MCP Server (python3) MCP PyPI 0.5 MCP Server Discovered - MCP Gateway +1 L0: Asset 1 Sep 10, 2026 Sep 10"]

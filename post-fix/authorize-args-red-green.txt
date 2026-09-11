@@ -1,0 +1,68 @@
+Bugbot HIGH — "Authorize path omits launcher args" — route-level RED → GREEN
+============================================================================
+Ticket: PRDCT-14204  |  PR #13362  |  branch factory-eval-v32/PRDCT-14204
+Finding: backend_python/src/sanitization_service/api/routes/access_control.py
+         determine_mcp_source_type() was called WITHOUT args at the authorize
+         version gate, so `python3 /srv/x.py` typed as PYPI (interpreter name),
+         never FILE. Identity on the same request types it FILE + keys
+         local:+content-digest, so the version-specific rule was looked up under
+         an id the version gate never produced -> block was missed, request fell
+         through to the group rule / tenant default.
+
+Acceptance test (drives the REAL front door POST authorize, asserts real DB-
+backed verdict):
+  tests/sanitization_service/api/test_access_control_ai_guard.py
+    ::test_authorize_interpreter_launched_file_reaches_its_content_digest_version
+
+Isolation note: the .venv is an editable install whose site-packages .pth adds
+~/onyx/backend_python/src to sys.path. A plain `git worktree` checkout is NOT
+enough to prove RED, because imports still resolve to the fixed real tree. The
+RED below is produced by PYTHONPATH-prepending the throwaway worktree's src so
+imports resolve to the REVERTED copy of access_control.py (fix line removed:
+`determine_mcp_source_type(remote_url, stdio_command)` — no args=). The real
+branch is never reverted.
+
+------------------------------------------------------------------------------
+RED (fix reverted in throwaway worktree /tmp/authz-red-wt, imports isolated via
+     PYTHONPATH=/tmp/authz-red-wt/backend_python/src):
+------------------------------------------------------------------------------
+  $ cd /tmp/authz-red-wt/backend_python
+  $ grep -n 'determine_mcp_source_type(remote_url, stdio_command' \
+      src/sanitization_service/api/routes/access_control.py
+  276:  if stdio_command and determine_mcp_source_type(remote_url, stdio_command) == McpSourceType.FILE:
+        # ^ args= removed — the reverted/buggy shape
+
+  $ PYTHONPATH=/tmp/authz-red-wt/backend_python/src \
+      ~/onyx/backend_python/.venv/bin/python -c \
+      "import sanitization_service.api.routes.access_control as m; print(m.__file__)"
+  imported from: /tmp/authz-red-wt/backend_python/src/sanitization_service/api/routes/access_control.py
+
+  $ PYTHONPATH=/tmp/authz-red-wt/backend_python/src \
+      ~/onyx/backend_python/.venv/bin/python -m pytest \
+      tests/sanitization_service/api/test_access_control_ai_guard.py::test_authorize_interpreter_launched_file_reaches_its_content_digest_version \
+      -x -q -p no:cacheprovider
+
+  =================================== FAILURES ===================================
+  E   AssertionError: `python3 svc.py` was typed PYPI at the version gate because
+      args were ignored, so the content-digest version was never resolved and the
+      version-specific block was missed
+      assert 'allow' == 'block'
+        - block
+        + allow
+  =========================== short test summary info ============================
+  FAILED tests/sanitization_service/api/test_access_control_ai_guard.py::test_authorize_interpreter_launched_file_reaches_its_content_digest_version
+  1 failed, 6 warnings in 11.16s
+
+------------------------------------------------------------------------------
+GREEN (real branch, fix applied — determine_mcp_source_type(remote_url,
+       stdio_command, args=stdio_args)):
+------------------------------------------------------------------------------
+  $ cd ~/onyx/backend_python
+  $ .venv/bin/python -m pytest \
+      tests/sanitization_service/api/test_access_control_ai_guard.py::test_authorize_interpreter_launched_file_reaches_its_content_digest_version \
+      -q -p no:cacheprovider
+  1 passed, 6 warnings in 10.80s
+
+Full file (regression check): 76 passed (captured separately).
+The test fails without the fix and passes with it — the test is coupled to the
+exact defect, not a proxy.

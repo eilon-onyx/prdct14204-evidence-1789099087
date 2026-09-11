@@ -1,0 +1,77 @@
+################################################################
+# 24b-closure.txt  (AT8 clause — coverage closure: every settlement class from the clause-1 inventory
+#   (23-settlement-inventory.txt) is marked DEMONSTRATED-IN-BOTH-LANES, DEMONSTRATED-ONE-LANE+reason, or
+#   NOT-RUN+reason. Clause 6 sanctions ledgering fix-independent pre-identity classes as not-run.)
+#
+# git_sha (PR-branch HEAD): 678f86b9a91fc3cdf08edc0df192b4843d48472e
+# The six MCP settlement classes are read from the writer's own outcome labels in
+#   23-settlement-inventory.txt (metrics.py taxonomy + emission sites), NOT from the test plan.
+################################################################
+
+CLASS 1 — WRITTEN-NEW  (WriteOutcome "created")
+  STATUS: DEMONSTRATED IN BOTH LANES.
+  OLD (tenant A) snap-A-v1-writtennew.tsv + old-lane fire chain (23c); NEW (tenant B) snap-B-v1-writtennew.tsv.
+  Both first-scan a fresh tenant and INSERT each server as a new asset keyed on the FILE the interpreter
+  runs. The ticket's core write. Convergence proven per-server in 23b; zero divergences (24).
+  KEY SUB-PROOF: weather-py (`python3 …/main.py`) + weather-py-u (`python -u …/main.py`) collapse to ONE
+  `local:<tenant>:weather/main.py` on BOTH lanes — interpreter and `-u` flag correctly ignored.
+
+CLASS 2 — WRITTEN-UPDATE  (WriteOutcome "matched")  [= class 6a version-supersede on this path]
+  STATUS: DEMONSTRATED IN BOTH LANES.
+  Re-scan after editing weather/main.py content: snap-A-v2-version.tsv / snap-B-v2-version.tsv. Same
+  app_definition_id, NEW content digest 64802d94…68c663e5 written beside the stale v1 25ba85bf…860fff73.
+  Both lanes carry both digests identically. Identity unchanged by the content edit.
+
+CLASS 3 — UNCHANGED / DEDUPED
+  STATUS: DEMONSTRATED IN BOTH LANES.
+  Replay of the identical v1 payload: snap-A-v1-dedup.tsv == snap-A-v1-writtennew.tsv byte-for-byte;
+  snap-B-v1-dedup.tsv == snap-B-v1-writtennew.tsv byte-for-byte. No new/updated row on either lane.
+  (New lane: content-hash skip gate; old lane: idempotent upsert / matched. Cross-lane replay-after
+  evidence also in 19-replay-before.txt / 20-replay-after.txt / 21-dedup-key.txt / 22b UI-unchanged.)
+
+CLASS 4 — SKIPPED (bare-launcher guard) — the at8 GUARD
+  STATUS: DEMONSTRATED IN BOTH LANES.
+  Bare `node` (args=[]) resolves to no identity and is NOT written on either lane. Zero
+  node::/python::/python3::/bun::/npx::/uv:: rows in EITHER schema. "Neither lane mints a bare-launcher
+  identity" holds. Gateway-side guard also in 07b-gateway-fileless-guard.txt; scanner-side skip in
+  post-fix/10-no-node-junk.png + 11-skip-selects.txt + 12-skip-log.txt.
+
+CLASS 5 — PARKED / DLQ (poison)
+  STATUS: DEMONSTRATED ON THE NEW LANE; ledgered NOT-RUN on the OLD lane (reason below).
+  NEW lane (tenant B): a malformed scan record POSTed through Kong was dead-lettered observably —
+  extract.py:808 "no parseable codingAgent object" -> message_handler.py:120 "dead-lettering" ->
+  sqs.py:355 "Moved message to DLQ" (message_id 364dcfba-…); tenant B asset count unchanged (batch
+  unharmed, zero rows written). Also 22-poison-parked.txt / 22b-assertions.txt.
+  OLD lane NOT-RUN — REASON: parked/DLQ is the SQS-consumer's message-grain settlement (message_handler
+  .py), which is the NEW lane's ingress. The OLD lane does not consume via SQS; it discovers work via
+  S3 LIST inside ScannerTenantWorkflow, where an unprocessable object is a Temporal activity
+  failure/retry — a DIFFERENT mechanism entirely, outside this ticket's identity scope. The class is
+  fix-independent and pre-identity, so clause 6 sanctions ledgering it not-run on the lane that has no
+  SQS ingress rather than manufacturing a poison path the old lane does not have.
+
+CLASS 6 — LIFECYCLE-STALE  (6a supersede / 6b orphan-retire)
+  STATUS: 6a DEMONSTRATED IN BOTH LANES (the weather/main.py v1-goes-stale-under-v2 state, class 2 above,
+  is exactly 6a — a changed digest written as a new row while the prior row goes stale; nothing retires
+  it on the scanner path). Static lifecycle UI evidence in pre-fix/05-mcp-detail-unknown-version.png and
+  post-fix/05-lifecycle-select.txt / 05b-lifecycle-scan.txt.
+  6b ORPHAN-RETIRE ledgered NOT-RUN — REASON: 6b soft-deletes a connectionless `{app_definition}::unknown`
+  sibling AFTER a concrete version re-keys, i.e. it needs a registry-FAILURE `::unknown` orphan to arise
+  first. In this corpus every server resolved either a concrete content digest or a documented `unknown`
+  VERSION on a concrete identity (never a connectionless `::unknown` app-definition orphan), so no orphan
+  existed to retire. Not a divergence and not a gap: neither lane produced a live `::unknown` duplicate.
+  The retire path itself is unit-covered in the mcp_writer test suite (reconcile/ orphan tests).
+
+OBJECT-GATE settlements (lane-arbitration switches, object grain — not MCP settlement classes, recorded
+for completeness):
+  * skipped_flag_off       DEMONSTRATED (Window-A new-lane log, tenant A declined — 23d assertion 2).
+  * skipped_unknown_tenant DEMONSTRATED (Window-A new-lane log, sidecar/posture objects — 23d).
+  * skipped wrong_source   DEMONSTRATED (Window-A new-lane log, endpoint-logs source — 23d).
+  * processed              DEMONSTRATED (tenant B new-lane writes — snap-B-*.tsv).
+
+################################################################
+# CLOSURE: all six MCP settlement classes are accounted for. Classes 1, 2, 3, 4 and 6a are DEMONSTRATED
+# IN BOTH LANES with zero divergence (24). Class 5 (parked/DLQ) is demonstrated on the new lane and
+# ledgered not-run on the old lane with a mechanism reason (no SQS ingress). Class 6b (orphan-retire) is
+# ledgered not-run because no `::unknown` orphan arose in this corpus to retire (unit-covered). No class
+# is unaccounted; no new-lane loss anywhere.
+################################################################

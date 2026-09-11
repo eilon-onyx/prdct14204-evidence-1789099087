@@ -1,0 +1,89 @@
+################################################################
+# 23c-old-lane-workflow-history.txt  (AT8 — proof the OLD gateway lane ran via a GENUINE scheduled
+#   collector fire off a REAL front-door scan, NOT a hand-started ScannerTenantWorkflow and NOT an
+#   explicit-S3Keys replay. Authoritative Temporal history, tenant A.)
+#
+# git_sha (PR-branch HEAD): 678f86b9a91fc3cdf08edc0df192b4843d48472e
+# Captured live from Temporal: namespace default, onyx-temporal-frontend:7233
+#   (kubectl -n onyxd exec onyx-temporal-admintools -- temporal workflow ...).
+# Tenant A uuid: 77e26c26-3612-407c-ad7b-3895635d7e74   schema at8_old_lane_a
+################################################################
+
+WHY THIS FILE EXISTS
+  at8 forbids "hand-starting ScannerTenantWorkflow with synthetic input or an s3_key that never rode
+  Kong". The old lane must be shown to have run because the scheduled collector, on its own cadence,
+  LISTed the S3 objects a REAL Kong scan deposited — the actual production trigger. This file traces
+  that chain end-to-end from the authoritative Temporal history.
+
+STEP 1 — the fresh tenant A was scanned through the REAL front door.
+  onyx-scanner scan --endpoint http://ingest-onyx.onyxd.svc.cluster.local:8080/mcp-scanner
+                    --api-key <tenant-A key-auth apikey>
+  -> Kong /mcp-scanner -> Vector -> S3 (tenant=77e26c26-…/source=mcp-scanner/date=2026-09-11/…).
+  No object was hand-placed; the S3 keys below carry the tenant prefix Kong wrote.
+
+STEP 2 — the SCHEDULED collector fired on its 1-minute cadence (genuine, not manual).
+  ScannerCollectorWorkflow list (WorkflowType='ScannerCollectorWorkflow'), Window A:
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:26:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:25:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:24:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:23:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:22:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:21:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:20:00Z
+    Completed  scanner-collector-schedule-execution-2026-09-11T03:19:00Z
+  The WorkflowId prefix `scanner-collector-schedule-execution-<ISO>` is minted by the Temporal SCHEDULE,
+  not by any manual `workflow start` — this is the schedule firing itself, once per minute.
+
+STEP 3 — the collector fanned out a ScannerTenantWorkflow PER TENANT with pending S3 objects. Tenant A:
+  temporal workflow list --query "WorkflowId BETWEEN 'scanner-tenant-77e26c26-…' AND 'scanner-tenant-77e26c26-…~'"
+    Completed  scanner-tenant-77e26c26-…-20260911T032500Z         ScannerTenantWorkflow
+    Completed  scanner-tenant-77e26c26-…-20260911T032500Z-bridge  IssueAndRiskBridgeWorkflow
+    Completed  scanner-tenant-77e26c26-…-20260911T032300Z         ScannerTenantWorkflow
+    Completed  scanner-tenant-77e26c26-…-20260911T032300Z-bridge  IssueAndRiskBridgeWorkflow
+    Completed  scanner-tenant-77e26c26-…-20260911T032000Z         ScannerTenantWorkflow
+    Completed  scanner-tenant-77e26c26-…-20260911T032000Z-bridge  IssueAndRiskBridgeWorkflow
+  Three genuine fires. The WorkflowId is the collector-composed `scanner-tenant-<uuid>-<window>` — the
+  collector chose it; it was not supplied by hand.
+
+STEP 4 — the FULL history of one ScannerTenantWorkflow (scanner-tenant-77e26c26-…-20260911T032000Z,
+  66 events) proves the genuine trigger and the real front door, event by event:
+
+  WorkflowExecutionStarted   parent = scanner-collector-schedule-execution-2026-09-11T03:20:00Z
+      ^ the parent IS the schedule execution — this ScannerTenantWorkflow was spawned BY the scheduled
+        collector, not started by a human/agent. This single field is the "genuine fire" proof.
+  ActivityTaskScheduled      CheckTenantEventDrivenFlag
+      ^ the blackout-fence gate: the old lane checks the per-tenant event-driven flag before consuming.
+        Its presence proves the lane-arbitration fence ran (see 23d for the Window-A fence result).
+  ActivityTaskScheduled      ListIngestionS3FilesByPrefixAndTimeRange
+      ^ THE FRONT DOOR: the old lane discovers work by LISTing S3 by tenant-prefix + time-range — i.e.
+        it consumed the objects the REAL Kong scan deposited. This is NOT explicit-S3Keys replay: no
+        s3_keys were injected; the activity LISTs the prefix and finds whatever Kong wrote. (No
+        explicit-S3Keys replay hatch was used anywhere in this run.)
+  ActivityTaskScheduled      CreateScannerInventory
+      ^ Go builds the scanner inventory from the listed objects.
+  ActivityTaskScheduled      ResolveScannerInventoryChunk
+  StartChildWorkflowExecutionInitiated  DesktopAgentCreatorScannerChunkWorkflow  id=01a08e7a-…_31
+  ActivityTaskScheduled      DeleteScannerInventoryChunk  (x2)
+  StartChildWorkflowExecutionInitiated  DesktopAgentCreatorWorkflow  id=01a08e7a-…_52
+      ^ DesktopAgentCreator is the Python step that drives McpAssetCreationWorkflow (the identity write).
+  StartChildWorkflowExecutionInitiated  IssueAndRiskBridgeWorkflow  id=…-20260911T032000Z-bridge
+  WorkflowExecutionCompleted
+
+STEP 5 — the identity-writing grandchild actually ran (McpAssetCreationWorkflow — the OLD/gateway lane's
+  Temporal identity writer; the NEW lane is in-process and NEVER uses this workflow, so every run of it
+  is old-lane):
+    temporal workflow list --query "WorkflowType = 'McpAssetCreationWorkflow'"
+      Completed  9afc0a0b-…  McpAssetCreationWorkflow   (~ the 032500Z fire)
+      Completed  f273a29a-…  McpAssetCreationWorkflow   (~ the 032300Z fire)
+      Completed  a1f1cbaf-…  McpAssetCreationWorkflow   (~ the 032000Z fire)
+  Three runs in the Window-A fire window — one per tenant-A ScannerTenantWorkflow. These are the writes
+  that produced snap-A-*.tsv (23b). By construction they are all tenant A: tenant B has ZERO
+  scanner-tenant workflows (23d) and the new lane does not use McpAssetCreationWorkflow.
+
+################################################################
+# CONCLUSION: the OLD lane's rows in 23b were written by a GENUINE scheduled-collector fire that LISTed
+# the S3 objects a REAL Kong scan of fresh tenant A deposited — parent = the schedule execution,
+# discovery = ListIngestionS3FilesByPrefixAndTimeRange, gate = CheckTenantEventDrivenFlag, writer =
+# McpAssetCreationWorkflow. No hand-started ScannerTenantWorkflow, no synthetic input, no explicit-S3Keys
+# replay hatch. Raw history saved at work-prdct14204/wf-tenantA-032000Z.json.
+################################################################

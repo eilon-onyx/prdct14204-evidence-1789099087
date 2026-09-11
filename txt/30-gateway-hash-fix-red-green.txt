@@ -1,0 +1,15 @@
+# at2 root-cause fix: gateway extractor now threads metadata.fileContentHash
+commit: 578b9e1af3f3107cb42afb3644334f8100773f08
+captured_at: 2026-09-10T21:12:40Z
+
+## Defect
+gateway_extract._convert_session never read metadata.fileContentHash, so the shared
+writer's resolve_mcp_local_version (mcp_writer.py:867) received None -> version=unknown,
+forking a second gateway asset row instead of converging on the scanner row for the
+identical interpreter launch (python3 /srv/weather/main.py).
+
+## RED (pre-fix)
+tests/endpoint_asset_ingestion/ingestion/test_gateway_extract.py::test_stdio_session_carries_the_file_content_hash
+  AssertionError: assert None == '7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350'
+
+## GREEN (post-fix): 29 passed in the gateway_extract suite; 637 passed across identity+lane+convergence suites

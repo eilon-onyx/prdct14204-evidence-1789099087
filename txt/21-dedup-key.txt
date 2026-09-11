@@ -1,0 +1,106 @@
+################################################################
+# 21-dedup-key.txt  (AT7 — the dedup keys that make replay safe, quoted from schema/code + shown enforced)
+# test_plan.json at7 flow step 5: "Name the dedup key: the unique index / ON CONFLICT target
+#   that made it safe, quoted from the schema and shown enforced."
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+#
+# The four tables the MCP write chain touches are each protected by a MATCHED PAIR: a Python-side
+# INSERT ... ON CONFLICT upsert whose index_elements name the conflict target, and a DB-level UNIQUE
+# index of the same name created in a corpus migration. A replayed payload re-derives the same keys,
+# so each layer's ON CONFLICT turns the second write into an update-or-noop -> no duplicate rows.
+# "Shown enforced": passes A1 (re-upload) and B (genuine SQS redelivery) both produced a BYTE-IDENTICAL
+# content snapshot (see 20-replay-after.txt) — the constraints below are what forced that.
+################################################################
+
+============================================================================
+TABLE: assets            (the MCP-server asset row)
+============================================================================
+  DB UNIQUE INDEX  : assets_unique_identifier_key  ON assets(unique_identifier)
+    model    common_db/models/assets.py:155
+             Index("assets_unique_identifier_key", "unique_identifier", unique=True)
+    DDL      db_migrations/corpus/tenant/00189_202512041905_rename_base_applications_to_assets.up.sql:81-82
+             ALTER INDEX IF EXISTS base_applications_unique_identifier_key
+               RENAME TO assets_unique_identifier_key;
+             (created originally as base_applications_unique_identifier_key in add_base_app / 00055)
+  UPSERT TARGET    : index_elements=["unique_identifier"]
+    common/repository/asset.py:1374-1378  (upsert_asset, def :1311)
+             insert_stmt.on_conflict_do_update(
+                 index_elements=["unique_identifier"], set_=set_, where=changed)
+    fallback resolve SELECT at asset.py:1382; get_or_create_asset_id (:1432) uses
+             on_conflict_do_nothing(index_elements=["unique_identifier"]) at asset.py:1480
+  KEY VALUE (MCP)  : unique_identifier = {MCP_ID}::{VERSION}
+    built by build_mcp_version_unique_identifier(app_id, version)
+    python_temporal_worker/mcp_asset_creation/activities.py:688
+    used as the ingestion identifier at mcp_writer.py:1079
+  => a re-ingested payload carries the same unique_identifier -> hits the unique index -> update/noop.
+
+============================================================================
+TABLE: mcp_servers       (the MCP expansion, one row per asset)
+============================================================================
+  DB UNIQUE INDEX  : mcp_servers_asset_id_key  ON mcp_servers(asset_id)
+    model    common_db/models/mcp_servers.py:44
+             Index("mcp_servers_asset_id_key", "asset_id", unique=True)
+    DDL      db_migrations/corpus/tenant/00224_202512250902_create_mcp_servers.up.sql:22
+             CREATE UNIQUE INDEX IF NOT EXISTS "mcp_servers_asset_id_key" ON "mcp_servers" ("asset_id");
+  UPSERT TARGET    : index_elements=["asset_id"]
+    common/repository/mcp_server.py:108-136 (upsert_mcp_server, def :47);
+    fallback resolve_conflict_row_id(..., conflict_cols=["asset_id"]) at :144
+  => keyed to the idempotent parent asset_id -> replay updates the single expansion row.
+
+============================================================================
+TABLE: asset_connections (the agent->MCP edge)
+============================================================================
+  DB UNIQUE INDEX  : assetlink_source_asset_id_destination_asset_id_connection_type
+                     ON asset_connections(source_asset_id, destination_asset_id, connection_type)
+    model    common_db/models/asset_connections.py:46
+    DDL      db_migrations/corpus/tenant/00223_202512250901_create_asset_connections.up.sql:17
+             CREATE UNIQUE INDEX IF NOT EXISTS
+               "assetlink_source_asset_id_destination_asset_id_connection_type"
+               ON "asset_connections" ("source_asset_id","destination_asset_id","connection_type");
+  UPSERT TARGET    : conflict_cols = ["source_asset_id","destination_asset_id","connection_type"]
+    common/repository/asset_connection.py:295, :304-311 (upsert_asset_connection, def :236;
+    bulk variant :416-417)
+  => an edge is identified by endpoints+type, all deterministic from the payload -> no duplicate edges.
+
+============================================================================
+TABLE: app_definition_versions   (the version-history row for the identity)
+============================================================================
+  DB UNIQUE INDEX  : appdefinitionversion_app_definition_id_app_version_id
+                     ON app_definition_versions(app_definition_id, app_version_id)
+    model    common_db/models/app_definition_version.py:26
+    DDL      db_migrations/corpus/public/00078_202512311200_add_app_definition_versions.up.sql:15-16
+  UPSERT TARGET    : index_elements=["app_definition_id","app_version_id"]
+    common/repository/app_definition_version.py:100-107 (upsert_app_definition_version, def :66)
+  KEY VALUE        : app_version_id = {app_definition_id}::{version}
+  => the (definition, version) pair is composed deterministically -> replaying the same version noops.
+
+  Supporting: public.app_definitions is keyed by app_definitions_app_id_key ON app_definitions(app_id)
+    (model app_definition.py:23; DDL corpus/public/00019_...:16); upsert on index_elements=["app_id"]
+    (app_definition.py:616 create-only / :620 update). This is the shared catalog identity the whole
+    MCP chain resolves against; a replay re-derives the same app_id -> no new catalog row (03/04 evidence
+    already showed public.app_definitions count unchanged by the idempotent re-scan).
+
+============================================================================
+THE "ONE WRITER" MATCH CHAIN — endpoint_asset_ingestion/ingestion/mcp_writer.py
+============================================================================
+  * F0 in-process dedup gate: ProcessedIdentityMemo (:193); fingerprint _server_write_fingerprint (:285);
+      gate at :892  gate_key = _server_write_fingerprint(mcp_server, mcp_name, mcp_version)
+      -> a memo hit returns the memoized asset id WITHOUT re-writing (:894-902): collapses duplicate
+         servers within one batch before any DB round-trip.
+  * version-level identity used as assets.unique_identifier — mcp_writer.py:1079
+      ingestion_unique_identifier = mcp_server.unique_identifier
+                                    or build_mcp_version_unique_identifier(app_def.app_id, mcp_version)
+  * content-hash short-circuit: evaluate_mcp_ingestion_skip (mcp_writer.py:1089-1098) — an unchanged
+      server (same hash) skips the write entirely.
+  * write order, each idempotent per its index above:
+      upsert_app_definition (:953, app_id) -> upsert_app_definition_version (:1185, (app_def_id, app_version_id))
+      -> upsert_mcp_asset (:1195, version-level unique_identifier) -> mcp_servers / asset_connections.
+
+############################################################################
+# ENFORCEMENT PROOF (not merely asserted):
+#  Pass A1 (byte-identical re-upload) and Pass B (genuine SQS redelivery, receive_count=2) each
+#  re-derived the SAME app_id, {app_id}::{version} version id, and {MCP_ID}::{VERSION} asset
+#  unique_identifier. Every layer's ON CONFLICT hit its matching UNIQUE index and became an
+#  update-or-noop -> the post-pass content snapshot was IDENTICAL to the baseline (20-replay-after.txt).
+#  The F0 memo + content-hash skip additionally suppress redundant work before it reaches the DB.
+############################################################################

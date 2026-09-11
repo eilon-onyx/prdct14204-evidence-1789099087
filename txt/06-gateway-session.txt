@@ -1,0 +1,41 @@
+================================================================================
+at2 evidence 06 — REAL MCP tool call transiting the map gateway (post-fix)
+Captured: 2026-09-10T21:39:28Z
+Gateway lane image: localhost:5001/onyx/endpoint-asset-ingestion:local-fix-578b9e1af3
+Server: python3 /srv/weather/main.py  (interpreter-launched local MCP server)
+Tenant: 61750f27-8fbd-42a4-80cf-4191cfb2371a  Machine: ip-172-31-90-152
+================================================================================
+
+### 1) Client transcript — real MCP session driven through the wrapped gateway shim
+###    (/home/ubuntu/.onyx/onyx-mcp-gw -- python3 /srv/weather/main.py), init -> tools/list -> tools/call
+--------------------------------------------------------------------------------
+[stderr] {"caller":"gateway_startup","event":"keychain_outcome","keychain_disabled_env_set":false,"op":"get","outcome":"env","platform":"linux","reason":"env"}
+SENT_ALL 21:35:08Z
+[stdout] {"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"weather","version":"1.0.0"}},"jsonrpc":"2.0","id":1}
+[stdout] {"result":{"tools":[{"name":"get_weather","description":"Get weather for a city","inputSchema":{"type":"object","properties":{"city":{"type":"string"}}}}]},"jsonrpc":"2.0","id":2}
+[stdout] {"result":{"content":[{"type":"text","text":"sunny, 21C"}]},"jsonrpc":"2.0","id":3}
+CLEAN_EXIT_RC 0 21:36:23Z
+
+### 2) Mirror object the REAL gateway produced, landed in S3 via Kong -> Vector
+###    s3://.../tenant=61750f27-.../source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log
+###    (stdio command/args + canonical fileContentHash + real tool result payload)
+--------------------------------------------------------------------------------
+=== NEWEST OBJECT 1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log  (2026-09-10T21:36:16+00:00)  5182 bytes ===
+[p0] method=tools/list type=request proxyType=stdio stdio={"args": ["/srv/weather/main.py"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+[p1] method=tools/call type=request proxyType=stdio stdio={"args": ["/srv/weather/main.py"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+[p2] method=tools/list type=response proxyType=stdio stdio={"args": ["/srv/weather/main.py"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+[p3] method=tools/call type=response proxyType=stdio stdio={"args": ["/srv/weather/main.py"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+     data.content~> {"content": [{"text": "sunny, 21C", "type": "text"}]}
+
+### 3) Gateway ingestion-lane log for object 1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51 (McpAssetCreationWorkflow batch)
+###    is_new=False everywhere -> the gateway lane MATCHED the scanner's existing rows,
+###    landed on asset_id=82 with the CONCRETE content-digest version. No new row.
+--------------------------------------------------------------------------------
+2026-09-10T21:36:16.399903Z [info     ] Upserted app definition        [common.repository.app_definition] app_definition_id=594 app_id=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py filename=app_definition.py func_name=upsert_app_definition is_new=False lineno=641 name='Local MCP Server (weather/main.py)' s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' span_id=bd999c210541b63a tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa
+2026-09-10T21:36:16.404875Z [info     ] Upserted app definition version [common.repository.app_definition_version] app_definition_id=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py app_version_id=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 filename=app_definition_version.py func_name=upsert_app_definition_version is_new=False lineno=127 s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' span_id=bd999c210541b63a tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa version_id=45
+2026-09-10T21:36:16.412758Z [info     ] Upserted base application      [common.repository.asset] asset_id=82 filename=asset.py func_name=upsert_asset lineno=1386 name='Local MCP Server (weather/main.py)' s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' span_id=bd999c210541b63a sub_type=AssetSubTypeMCPServer tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa type=AssetTypeMCP unique_identifier=local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+2026-09-10T21:36:16.428548Z [info     ] Upserted MCP server            [common.repository.mcp_server] asset_id=82 filename=mcp_server.py func_name=upsert_mcp_server lineno=146 mcp_server_id=45 s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' server_type=Local source_type=File span_id=bd999c210541b63a tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa
+2026-09-10T21:36:16.434858Z [info     ] Upserted asset_source          [common.repository.asset_source] asset_id=82 filename=asset_source.py func_name=upsert_source lineno=112 s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' source=mcpGateway source_id=120 span_id=bd999c210541b63a tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa
+2026-09-10T21:36:16.564497Z [info     ] Upserted tool for execution    [python_temporal_worker.mcp_asset_creation.activities] asset_id=82 filename=activities.py func_name=upsert_tool_for_execution lineno=2590 s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' span_id=bd999c210541b63a tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a tool_id=13 tool_name=get_weather trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa
+2026-09-10T21:36:16.603748Z [info     ] ingested scanner object        [endpoint_asset_ingestion.ingestion.object_processor] filename=object_processor.py func_name=process lineno=152 s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' span_id=bd999c210541b63a tenant_schema=onyx_security tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa
+2026-09-10T21:36:16.603915Z [info     ] asset_ingestion_record_handled [endpoint_asset_ingestion.consumer.message_handler] filename=message_handler.py func_name=_handle_record lineno=171 object_age_seconds=0.023242 outcome=processed s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-gateway/date=2026-09-10/1789076176-3c14e4cf-00f8-4bc1-acaa-bd19a3e2af51.log' span_id=bd999c210541b63a tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=f6572d61e4b67a33ade36fedcf4109fa

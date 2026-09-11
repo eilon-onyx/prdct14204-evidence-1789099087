@@ -1,0 +1,21 @@
+== onyx-scanner scan transcript (real upload through Kong key-auth ingest front door) ==
+scan_run_id=931b8663-e7f8-4ac6-bb0b-9c9895638a36  machine=ip-172-31-90-152 (lab EC2 i-0324dfa5f1f198c9a)
+endpoint: http://ingest-onyx.onyxd.svc.cluster.local:8080/mcp-scanner (reverse-tunnel rail into box Kong :8080, key-auth apikey)
+
+2026-09-10T14:08:40.265325168Z	INFO	Scan completed successfully
+
+== transcript upload-result lines (scanner logs 'Scan completed successfully' ONLY on ingest HTTP 200; non-200 logs 'ingest endpoint returned non-200 status code: <n>' — scanner source scanner/cmd) ==
+2026-09-10T14:08:40.265325168Z	INFO	Scan completed successfully
+Total: 1 agents, 7 MCP servers
+
+== 7 MCP servers detected & uploaded (from transcript table) ==
+2026-09-10T14:08:35.73556127Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::weather-py-u", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:35.735639907Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::weather-ts", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:35.735717353Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::xserver", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:35.735759636Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::filemcp", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:35.735819312Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::poetry-env", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:35.735870968Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::bare-node", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:35.735945014Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::weather-py", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T14:08:40.178914731Z	INFO	mcp_file_fingerprint	{"event": "mcp_file_fingerprint", "platform": "linux", "agent": "claude-code", "username": "ubuntu", "scan_run_id": "931b8663-e7f8-4ac6-bb0b-9c9895638a36", "local_mcp_servers": 7, "eligible": 4, "fingerprinted": 4, "shell_command_form": 0}
+2026-09-10T14:08:40.209319706Z	INFO	mcp_file_fingerprint	{"event": "mcp_file_fingerprint", "platform": "linux", "agent": "claude-code", "username": "ubuntu", "scan_run_id": "931b8663-e7f8-4ac6-bb0b-9c9895638a36", "local_mcp_servers": 7, "eligible": 4, "fingerprinted": 4, "shell_command_form": 0}
+2026-09-10T14:08:40.241620397Z	WARN	parity: difference	{"event": "parity_difference", "agent": "claude-code", "username": "ubuntu", "path": "mcpServers", "kind": "member", "shipped": "7 entries", "shadow": "7 entries", "detail": "same length, different members. 4 only on the left (showing 3): {\"args\":[\"-u\",\"/srv/weather/main.py\"],\"command\":\"python\",\"configEntryName\":\"weather-py-u\",\"fileContentHash\":\"7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d…, {\"args\":[\"/root/filemcp.js\"],\"command\":\"node\",\"configEntryName\":\"filemcp\",\"fileContentHash\":\"5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5\",\"…, {\"args\":[\"/srv/weather/main.py\"],\"command\":\"python3\",\"configEntryName\":\"weather-py\",\"fileContentHash\":\"7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbac… … and 1 more", "anchor_differs": false}

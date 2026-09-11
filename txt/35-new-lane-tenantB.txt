@@ -1,0 +1,26 @@
+=== 35-new-lane-tenantB.txt — NEW scanner lane (endpoint-asset-ingestion consumer) driven for FRESH tenant B through Kong (captured 2026-09-11T00:57:36Z) ===
+
+Window setup: SERVICE_IDENTITY env removed (flag falls through True); scanner-collector-schedule PAUSED => old lane cannot touch B.
+
+--- real scan through Kong key-auth (tenant B key KDT1...) ---
+2026-09-11T00:56:29.581752845Z	DEBUG	Scan run starting	{"scan_run_id": "c5221b1e-f5fd-4003-b79f-d4d47f30ab6c", "timestamp": "2026-09-11T00:56:29.581034333Z", "full_scan": true, "dry_run": false, "project_walk_timeout": "7m0s", "session_lookback_window": "720h0m0s"}
+2026-09-11T00:56:29.582085183Z	DEBUG	Step start: enumerate user contexts	{"scan_run_id": "c5221b1e-f5fd-4003-b79f-d4d47f30ab6c", "include_other_users": true}
+
+--- NEW lane processed B's exact object ---
+2026-09-11T00:56:49.786763Z [info     ] asset_ingestion_record_handled [endpoint_asset_ingestion.consumer.message_handler] filename=message_handler.py func_name=_handle_record lineno=171 object_age_seconds=4.673888 outcome=processed s3_key='tenant=e28b5431-3372-4511-ad3d-731cee0b2a7e/source=mcp-scanner/date=2026-09-11/1789088204-20be3ea5-c88f-4f36-9e53-5a00fa01329b.log' span_id=d9836eb457a7afec tenant_uuid=e28b5431-3372-4511-ad3d-731cee0b2a7e trace_flags=01 trace_id=9c80bd8c3ce15b7a32e1b9f90fc28983
+
+--- rows written by the NEW lane into prdct14204_new.assets ---
+ id |                     app_definition_id                      |                                                      unique_identifier                                                       |                name                
+----+------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+------------------------------------
+  1 | endpoint_claude-code                                       | endpoint_claude-code::ec21b2798e01bf08c30c2cf83db838bd                                                                       | Claude Code (ubuntu)
+  2 | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:filemcp.js      | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:filemcp.js::5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5      | Local MCP Server (filemcp.js)
+  3 | poetry::ec21b2798e01bf08c30c2cf83db838bd                   | poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown                                                                            | Local MCP Server (poetry)
+  4 | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:weather/main.py | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:weather/main.py::unknown                                                          | Local MCP Server (weather/main.py)
+  6 | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:weather/main.ts | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:weather/main.ts::922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab | Local MCP Server (weather/main.ts)
+  7 | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:server.py       | local:e28b5431-3372-4511-ad3d-731cee0b2a7e:server.py::unknown                                                                | Local MCP Server (server.py)
+(6 rows)
+
+
+--- old-lane guard: ScannerTenantWorkflow children mentioning e28b5431: ---
+0
+0 (none)

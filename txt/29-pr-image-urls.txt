@@ -1,0 +1,27 @@
+# 29-pr-image-urls.txt — each embedded PR image URL + its ANONYMOUS HTTP 200 + image/* receipt
+# host: PUBLIC repo eilon-onyx/prdct14204-evidence-1789099087 (raw.githubusercontent.com) — chosen because onyxsecurity/onyx
+#   is PRIVATE and its release-asset download URLs 404 anonymously (and even with a token); this is the
+#   same public-repo raw-host pattern sibling eval PRs (#13359, #13345) use to satisfy anonymous embed.
+# check: curl -sSL with NO Authorization header -> final HTTP code + content-type
+# captured: 2026-09-11T03:58:36Z
+
+before-04-interpreter-rows.png         HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/before-04-interpreter-rows.png
+after-06-script-rows.png               HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-06-script-rows.png
+before-05-detail-unknown-version.png   HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/before-05-detail-unknown-version.png
+after-07-detail-digest.png             HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-07-detail-digest.png
+before-13-both-rows-pre-migration.png  HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/before-13-both-rows-pre-migration.png
+after-14-one-row-post-migration.png    HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-14-one-row-post-migration.png
+after-12b-one-row-both-lanes.png       HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-12b-one-row-both-lanes.png
+after-09-npm-package-row.png           HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-09-npm-package-row.png
+after-10-no-node-junk.png              HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-10-no-node-junk.png
+after-22b-replay-ui-unchanged.png      HTTP 200  image/png
+  https://raw.githubusercontent.com/eilon-onyx/prdct14204-evidence-1789099087/main/img/after-22b-replay-ui-unchanged.png

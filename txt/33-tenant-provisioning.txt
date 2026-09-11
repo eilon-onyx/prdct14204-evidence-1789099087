@@ -1,0 +1,30 @@
+=== 33-tenant-provisioning.txt — setup r2 (captured 2026-09-11T00:53:55Z) ===
+Real TenantCreationWorkflow (started via backend_python/scripts/create_tenant.py copied into temporal-python-worker pod, /app/.venv/bin/python, temporal onyx-temporal-frontend:7233, task queue python-worker; Go CreateTenantCredentials on queue default minted Kong consumers).
+
+--- workflow A: tenant-creation-prdct14204-old-cli run 01a08df3-3dde-7ca0-b450-90cf020908ff -> Tenant ID 2, UUID a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf, schema prdct14204_old
+--- workflow B: tenant-creation-prdct14204-new-cli -> Tenant ID 3, UUID e28b5431-3372-4511-ad3d-731cee0b2a7e, schema prdct14204_new
+
+--- public.tenants + alembic parity + table counts (psql postgres-rw) ---
+1|61750f27-8fbd-42a4-80cf-4191cfb2371a|Onyx Security|onyx_security
+2|a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf|PRDCT14204 Old|prdct14204_old
+3|e28b5431-3372-4511-ad3d-731cee0b2a7e|PRDCT14204 New|prdct14204_new
+onyx_security|c9c43b7963de
+prdct14204_old|c9c43b7963de
+prdct14204_new|c9c43b7963de
+prdct14204_old tables|215
+prdct14204_new tables|215
+
+--- Kong consumers minted by the workflow (gateway-admin) ---
+ingestion@e28b5431-3372-4511-ad3d-731cee0b2a7e
+onyx-extension@e28b5431-3372-4511-ad3d-731cee0b2a7e
+ai-firewall@a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf
+swg@a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf
+ai-firewall@e28b5431-3372-4511-ad3d-731cee0b2a7e
+ingestion@a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf
+swg@e28b5431-3372-4511-ad3d-731cee0b2a7e
+onyx-extension@a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf
+mcp-gateway@a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf
+mcp-gateway@e28b5431-3372-4511-ad3d-731cee0b2a7e
+ingestion keys: tenantA=zv6268lUdBUahQD7XSGPUR0rFqNlHo1u tenantB=KDT1PD8mJ251V4MH7DWmUDprdNrCMRAm
+
+NOTE: ONYX__GITHUB_APP__* env was temporarily removed from temporal-python-worker during both runs so step 14b (flux-fleet DNS commit, non-fatal by design) could not write to the shared repo; env restored from secret backoffice-github afterward.

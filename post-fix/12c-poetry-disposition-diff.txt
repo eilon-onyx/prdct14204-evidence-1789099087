@@ -1,0 +1,27 @@
+==================================================================
+at4 — poetry disposition: base-run vs fix-run, DIFFED (d25: poetry install keeps declining)
+Captured: 2026-09-10T19:51:14Z | fix scan_run 3dba135b | image local-fix-467e26370e
+A bare 'poetry install' launches NO server. It must stay device-scoped (poetry::<serial>), never
+minting a cross-tenant local: identity. This is unchanged from the pre-fix base run.
+==================================================================
+
+### BASE-RUN (pre-fix) poetry row — quoted from evidence/pre-fix/02-assets-select.txt ###
+ 29 | poetry::ec21b2798e01bf08c30c2cf83db838bd | poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown      | Local MCP Server (poetry)  | File        | f          | 2026-09-10 14:08:53.55726+00
+
+### FIX-RUN poetry row (current DB, after the post-fix scan 3dba135b) ###
+ id |            app_definition_id             |                 unique_identifier                 | version | source_type | is_deleted 
+----+------------------------------------------+---------------------------------------------------+---------+-------------+------------
+ 29 | poetry::ec21b2798e01bf08c30c2cf83db838bd | poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown | unknown | File        | f
+(1 row)
+
+
+### GUARD: any local: identity for poetry? (expect 0 rows) ###
+ id | app_definition_id 
+----+-------------------
+(0 rows)
+
+
+### DIFF verdict ###
+Base app_definition_id : poetry::ec21b2798e01bf08c30c2cf83db838bd  (device-scoped, File, version unknown)
+Fix  app_definition_id : poetry::ec21b2798e01bf08c30c2cf83db838bd  -> IDENTICAL
+local:<tenant>:poetry  : 0 rows before, 0 rows after -> the fix does NOT promote the bare manager to a local: identity.

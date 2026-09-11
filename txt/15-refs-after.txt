@@ -1,0 +1,73 @@
+### at5 evidence 15 — reference rows AFTER migration apply (assets_merged=1)
+# captured: 2026-09-10T23:02:18Z  git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Each reference kind now reads back on the CONVERGED asset id 82 / app 'local:...weather/main.py'
+# and no longer on the legacy asset 31 / app 'python3'. The legacy asset row is soft-deleted.
+############ per-kind reference SELECTs (legacy=asset 31/app 'python3'  converged=asset 82/app 'local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py') ############
+===== asset_tags (by asset_id) =====
+SET
+ id | asset_id |     key     |   value    | source 
+----+----------+-------------+------------+--------
+  1 |       82 | environment | production | manual
+(1 row)
+
+===== access_control (by app_definition_id) =====
+SET
+                  id                  | asset_id |                     app_definition_id                      |   status   
+--------------------------------------+----------+------------------------------------------------------------+------------
+ d5bd0856-3385-48d5-8805-6d7286d80d17 |          | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | Sanctioned
+ a9c61770-1725-477e-a2db-3638cb4d2dea |          | python3                                                    | Sanctioned
+(2 rows)
+
+===== asset_ai_firewall_policies (by asset_id or app_definition_id) =====
+SET
+ id | ai_firewall_policy_id | asset_id |                     app_definition_id                      
+----+-----------------------+----------+------------------------------------------------------------
+ 25 |                    19 |          | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py
+(1 row)
+
+===== tools (by asset_id) =====
+SET
+ id | asset_id |    name     
+----+----------+-------------
+ 13 |       82 | get_weather
+(1 row)
+
+===== mcp_gateway_installations (by mcp_asset_id) =====
+SET
+ id | mcp_asset_id 
+----+--------------
+ 44 |           82
+(1 row)
+
+===== asset_connections (by destination_asset_id) =====
+SET
+ id | source_asset_id | destination_asset_id | connection_type | is_deleted 
+----+-----------------+----------------------+-----------------+------------
+ 44 |              23 |                   82 | AgentToMcp      | f
+(1 row)
+
+===== usage_sessions (by app_id or destination_app_id) =====
+SET
+ id  | app_id | destination_app_id 
+-----+--------+--------------------
+ 277 |        |                 82
+ 279 |        |                 82
+ 280 |        |                 82
+ 281 |        |                 82
+ 282 |        |                 82
+(5 rows)
+
+===== issue_instances (by asset_id) =====
+SET
+ id | asset_id 
+----+----------
+(0 rows)
+
+===== assets rows (legacy + converged: is_deleted, updated_at) =====
+SET
+ id |                name                |                     app_definition_id                      | is_deleted |          updated_at           
+----+------------------------------------+------------------------------------------------------------+------------+-------------------------------
+ 31 | Local MCP Server (python3)         | python3                                                    | t          | 2026-09-10 23:02:03.278996+00
+ 82 | Local MCP Server (weather/main.py) | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | f          | 2026-09-10 19:08:47.651266+00
+(2 rows)
+

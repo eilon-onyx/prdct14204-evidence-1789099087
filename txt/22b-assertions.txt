@@ -1,0 +1,51 @@
+################################################################
+# 22b-assertions.txt  (AT7 — post-replay /ai-assets UI is UNCHANGED, programmatic assertions)
+# Pairs with 22b-replay-ui-unchanged.png (annotated full-surface capture).
+# assertion_class: static-state. Driven by Playwright over the real SPA via browser SSO
+#   (persistent profile /tmp/onyx-sso-profile, identity coder-agent@onyx.security).
+# test_plan.json at7 ui_proof_steps: "navigate the authenticated SPA to /ai-assets ... Assert +
+#   screenshot: the run's asset rows are unchanged in count, and the lifecycle-deleted server has
+#   NOT reappeared."
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-11T00:14Z
+#
+# READING: "the run's asset rows" = the endpoint-scanner run's LOCAL FILE + NPM MCP servers
+#   (4 converged file identities + node + poetry device-scoped + Everything npm = 7). The other 4
+#   MCP rows in the tenant are pre-existing GATEWAY-lane REMOTE servers (ClickHouse / Task Master /
+#   Sentry / Context7 — "Asset 3", first seen Sep 6); they are not this run's assets and the replay
+#   passes never touch them. The DB-level proof that replay changed nothing is 19/20-replay-*.txt
+#   (byte-identical content snapshots); this is the UI corroboration of the same invariant.
+################################################################
+
+POST-REPLAY /ai-assets MCP Servers — TOTAL visible rows: 11
+  row[0]: Local MCP Server (filemcp.js) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 1
+  row[1]: Local MCP Server (server.py) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10
+  row[2]: Local MCP Server (weather/main.ts) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 
+  row[3]: Local MCP Server (poetry) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2
+  row[4]: Local MCP Server (weather/main.py) MCP 2 Versions Local File 1.2 MCP Server Sanctioned - MCP Gateway +1 environment: pro
+  row[5]: ClickHouse MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 5 days ago
+  row[6]: Task Master AI MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 8 days ago
+  row[7]: Sentry MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 7 days ago
+  row[8]: Context7 MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 9 days ago
+  row[9]: Everything MCP Server MCP NPM 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 11, 2026 No acti
+  row[10]: Local MCP Server (node) MCP Local File 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 202
+ASSERT converged "Local MCP Server (weather/main.py)": rows=1 OK(exactly one)
+ASSERT converged "Local MCP Server (weather/main.ts)": rows=1 OK(exactly one)
+ASSERT converged "Local MCP Server (server.py)": rows=1 OK(exactly one)
+ASSERT converged "Local MCP Server (filemcp.js)": rows=1 OK(exactly one)
+ASSERT lifecycle-deleted server NOT resurrected/duplicated "Local MCP Server (weather/main.py)": rows=1 OK(single stale row)
+ASSERT interpreter-junk absent "Python MCP Server": rows=0 OK(absent)
+ASSERT interpreter-junk absent "Bun MCP Server": rows=0 OK(absent)
+ASSERT interpreter-junk absent "uv MCP Server": rows=0 OK(absent)
+ASSERT interpreter-junk absent "Local MCP Server (python3)": rows=0 OK(absent)
+ASSERT interpreter-junk absent "Local MCP Server (python)": rows=0 OK(absent)
+ASSERT device-scoped launcher present "Local MCP Server (node)": rows=1 OK
+ASSERT device-scoped launcher present "Local MCP Server (poetry)": rows=1 OK
+ASSERT npm server present "Everything MCP Server": rows=1 OK
+CONTEXT total MCP rows in tenant: 11  (this run's local/npm rows: 7, pre-existing gateway remote rows: 4)
+  gateway-remote (untouched by replay): ClickHouse MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 S
+  gateway-remote (untouched by replay): Task Master AI MCP 0.7 MCP Server Discovered - L0: Asset 3 S
+  gateway-remote (untouched by replay): Sentry MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6
+  gateway-remote (untouched by replay): Context7 MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 
+ASSERT the run's asset rows unchanged in count: runRows=7 expected=7 OK
+WROTE 22b-replay-ui-unchanged.png

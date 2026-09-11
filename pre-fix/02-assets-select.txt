@@ -1,0 +1,32 @@
+== PRE-FIX (frozen base, main@75d4938ba3): tenant onyx_security assets + mcp_servers written by scan_run 931b8663 (machine ip-172-31-90-152) ==
+== config entries: python3 /srv/weather/main.py | python -u /srv/weather/main.py | bun /srv/weather/main.ts | uv run --directory /x server.py | node /root/filemcp.js | poetry install | node (bare) ==
+SET
+ id |            app_definition_id             |                   unique_identifier                    |            name            | source_type | is_deleted |          created_at           
+----+------------------------------------------+--------------------------------------------------------+----------------------------+-------------+------------+-------------------------------
+ 23 | endpoint_claude-code                     | endpoint_claude-code::ec21b2798e01bf08c30c2cf83db838bd | Claude Code (ubuntu)       |             | f          | 2026-09-10 14:05:28.719668+00
+ 25 | python                                   | python::unknown                                        | Python MCP Server          | Pypi        | f          | 2026-09-10 14:08:53.17434+00
+ 26 | bun                                      | bun::unknown                                           | bun                        | Npm         | f          | 2026-09-10 14:08:53.284388+00
+ 27 | uv                                       | uv::unknown                                            | uv                         | Pypi        | f          | 2026-09-10 14:08:53.38453+00
+ 28 | node::ec21b2798e01bf08c30c2cf83db838bd   | node::ec21b2798e01bf08c30c2cf83db838bd::unknown        | Local MCP Server (node)    | File        | f          | 2026-09-10 14:08:53.474488+00
+ 29 | poetry::ec21b2798e01bf08c30c2cf83db838bd | poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown      | Local MCP Server (poetry)  | File        | f          | 2026-09-10 14:08:53.55726+00
+ 31 | python3                                  | python3::unknown                                       | Local MCP Server (python3) | Pypi        | f          | 2026-09-10 14:08:53.70649+00
+(7 rows)
+
+== app_definition_versions for those app_definitions (version segment = ::unknown everywhere; no content digest) ==
+== real file sha256 on the machine (raw, pre-normalization) for the fidelity leg ==
+-- /srv/weather/main.py 1d28e366c52bb2a11c530f5447c9f846901ee15098a1254edfda9cf87e2998f0
+-- /srv/weather/main.ts 8f7a5f2cc3712eca4179bdbf8306a4047911f66d9b9dcc41ab9d03dce1fe66b0
+-- /x/server.py 1759420c6a7c0f590e312967f9448f548246cde6581260486cfbedfa6e3f2c67
+-- /root/filemcp.js fb626e9d19a00f032e14f7bc76c291ecc1b09045e5012c08eb9aece2cf179fc2
+-- scanner-computed normalized fileContentHash (transcript): main.py 7c1052fc20d886b9..., filemcp.js 5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5
+== app_definition_versions rows for the scan app_definitions (app_version_id = ::unknown everywhere; no content digest) ==
+            app_definition_id             |                  app_version_id                   
+------------------------------------------+---------------------------------------------------
+ bun                                      | bun::unknown
+ node::ec21b2798e01bf08c30c2cf83db838bd   | node::ec21b2798e01bf08c30c2cf83db838bd::unknown
+ poetry::ec21b2798e01bf08c30c2cf83db838bd | poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown
+ python                                   | python::unknown
+ python3                                  | python3::unknown
+ uv                                       | uv::unknown
+(6 rows)
+

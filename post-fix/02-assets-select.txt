@@ -1,0 +1,68 @@
+################################################################
+# 02-assets-select.txt  (AT1 — post-fix DB read-back)
+# Source: real onyx-scanner scan_run 3259d973-7397-4a91-a333-487f74c5a9cc
+#         driven front-door through Kong (see 01-scan-upload-status.txt,
+#         "Scan completed successfully").
+# Deployed lane image: localhost:5001/onyx/endpoint-asset-ingestion:local-fix-e6a46a3e36
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3  (PR-branch HEAD == deployed image)
+# Tenant schema: onyx_security   Tenant UUID: 61750f27-8fbd-42a4-80cf-4191cfb2371a
+# Captured (UTC): 2026-09-10T23:33Z
+#
+# CLAIM: after the real scanner ingests interpreter-launched local MCP servers,
+#   every server is identified/stored by the FILE the interpreter runs
+#   (local:<tenant>:<script>), never by the bare interpreter; the scan is
+#   IDEMPOTENT (no duplicate rows); file-less bare launchers correctly fall back
+#   to the device-scoped {name}::{serial} form; legacy interpreter-keyed rows are
+#   retired (is_deleted=t). Read back from the DB — NOT asserted from a unit test.
+################################################################
+
+===== (A) live MCP-server assets (JOIN assets↔mcp_servers) =====
+-- SELECT a.id, a.name, a.app_definition_id, a.version, a.is_deleted
+--   FROM assets a JOIN mcp_servers ms ON ms.asset_id=a.id ORDER BY a.is_deleted, a.id;
+ id |                name                |                     app_definition_id                      |                             version                              | is_deleted
+----+------------------------------------+------------------------------------------------------------+------------------------------------------------------------------+------------
+ 28 | Local MCP Server (node)            | node::ec21b2798e01bf08c30c2cf83db838bd                     | unknown                                                          | f
+ 29 | Local MCP Server (poetry)          | poetry::ec21b2798e01bf08c30c2cf83db838bd                   | unknown                                                          | f
+ 81 | Everything MCP Server              | @modelcontextprotocol/server-everything                    | 2026.8.31                                                        | f
+ 82 | Local MCP Server (weather/main.py) | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | f
+ 84 | Local MCP Server (weather/main.ts) | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts | 922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab | f
+ 85 | Local MCP Server (server.py)       | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py       | unknown                                                          | f
+ 86 | Local MCP Server (filemcp.js)      | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js      | 5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5 | f
+(7 rows)
+
+INTERPRETATION of (A):
+  * 82 python3 /srv/weather/main.py      -> local:<tenant>:weather/main.py   (FILE, not "python3")
+  * 84 python3 /srv/weather/main.ts      -> local:<tenant>:weather/main.ts   (FILE, not "python3")
+  * 85 uv run --directory /x server.py   -> local:<tenant>:server.py         (FILE, not "uv")
+  * 86 node /root/filemcp.js             -> local:<tenant>:filemcp.js        (FILE, not "node")
+    ^ THE TICKET'S FIX: each interpreter-launched server is keyed by the script it runs.
+  * 28 "node"   (bare launcher, no script arg)  -> node::<serial>    device-scoped fallback (correct SKIP)
+  * 29 "poetry" (bare launcher, no script arg)  -> poetry::<serial>  device-scoped fallback (correct SKIP)
+  * 81 Everything MCP Server -> @modelcontextprotocol/server-everything  package-lane identity (unchanged)
+
+===== (B) duplicate-guard: rows per converged local: identity (must be 1 live / 1 total) =====
+-- SELECT app_definition_id, count(*) FILTER (WHERE is_deleted=false) AS live, count(*) AS total
+--   FROM assets WHERE app_definition_id LIKE 'local:61750f27%' GROUP BY app_definition_id;
+                     app_definition_id                      | live | total
+------------------------------------------------------------+------+-------
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js      |    1 |     1
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py       |    1 |     1
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py |    1 |     1
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts |    1 |     1
+(4 rows)
+  => NO DUPLICATES. Re-running the scan on the final image produced no second row for any
+     identity (identity is by the file name, so a re-scan reuses the same app_definition_id).
+
+===== (C) retired legacy interpreter-keyed assets (soft delete, is_deleted=t) =====
+-- SELECT id, name, app_definition_id, version, is_deleted, updated_at FROM assets
+--   WHERE is_deleted=true AND app_definition_id IN ('python3','python','node','bun','uv','poetry');
+ id |            name            | app_definition_id | version | is_deleted |          updated_at
+----+----------------------------+-------------------+---------+------------+-------------------------------
+ 25 | Python MCP Server          | python            | unknown | t          | 2026-09-10 23:17:15.557427+00
+ 26 | Bun MCP Server             | bun               | unknown | t          | 2026-09-10 23:17:15.557427+00
+ 27 | uv MCP Server              | uv                | unknown | t          | 2026-09-10 23:17:15.557427+00
+ 31 | Local MCP Server (python3) | python3           | unknown | t          | 2026-09-10 23:02:03.278996+00
+(4 rows)
+  => the interpreter-keyed identities that this run's FILE servers used to mis-map to are
+     RETIRED (soft delete), leaving one converged row each. No live bare-interpreter row for a
+     server that actually runs a script.

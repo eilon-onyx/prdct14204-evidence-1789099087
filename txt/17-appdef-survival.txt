@@ -1,0 +1,31 @@
+################################################################
+# 17-appdef-survival.txt  (AT5)
+# Claim: the migration NEVER deletes or re-keys shared public.app_definitions
+#        rows. The interpreter-keyed app_definition (and every other) survives
+#        the merge intact; only the tenant-scoped ASSET is retired.
+# Captured (UTC): 2026-09-10T23:07:55Z
+################################################################
+
+Baseline snapshot (BEFORE apply): public.app_definitions  SELECT id, app_id, name ORDER BY id
+  rows=540  sha256=0bafbc048d4cbba7b71ee2ac4fbbb16a21a595b36bc6e02c564a7fb4e9c6e7c5
+After snapshot (AFTER apply):
+  rows=540  sha256=0bafbc048d4cbba7b71ee2ac4fbbb16a21a595b36bc6e02c564a7fb4e9c6e7c5
+
+===== interpreter / local app_definition rows STILL PRESENT after the merge =====
+532|python|Python MCP Server
+533|bun|Bun MCP Server
+534|uv|uv MCP Server
+535|node::ec21b2798e01bf08c30c2cf83db838bd|Local MCP Server (node)
+536|poetry::ec21b2798e01bf08c30c2cf83db838bd|Local MCP Server (poetry)
+538|python3|Local MCP Server (python3)
+583|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js|Local MCP Server (filemcp.js)
+594|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|Local MCP Server (weather/main.py)
+596|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts|Local MCP Server (weather/main.ts)
+597|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py|Local MCP Server (server.py)
+
+-- The legacy interpreter identity's shared row (id 538 | python3 | Local MCP Server (python3))
+   is present AFTER the migration. _IDENTITY_STRING_COLUMNS in mcp_asset_merge.py deliberately
+   OMITS public.app_definitions and app_definition_versions from the re-key sweep, and
+   _ASSET_PAIRS never touches assets.app_definition_id -- re-keying a shared public row would
+   mutate identity for OTHER tenants that reference the same app_id. The merge retires the
+   tenant-scoped asset (see 16) and leaves the shared catalog untouched.

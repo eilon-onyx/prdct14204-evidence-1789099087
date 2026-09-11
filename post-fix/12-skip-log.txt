@@ -1,0 +1,12 @@
+==================================================================
+at4 — the deliberate-skip decision, quoted from the scanner-lane pod log (C12)
+Captured: 2026-09-10T19:49:42Z | pod: endpoint-asset-ingestion-7d96ff46d4-4nll2 | image: local-fix-467e26370e
+scan_run_id: 3dba135b-3cf4-4f9b-82c2-3e7ff1b56fb2 | host: ip-172-31-90-152
+The bare-node config entry {command:node,args:[]} resolves to no script identity, so the
+writer intentionally does NOT mint a bare-launcher asset. The line names the command/args and an
+explicit reason, and carries tenant_uuid (tenant) + s3_key (machine/scan) from the trace context,
+so the deliberate-skip branch is unambiguously identifiable per C12.
+==================================================================
+
+2026-09-10T19:49:30.688962Z [info     ] skipping MCP server with no identifiable data [endpoint_asset_ingestion.ingestion.mcp_writer] args=None command=node config_entry_name=bare-node filename=mcp_writer.py func_name=_upsert_one_mcp_server lineno=799 plugin_name=None reason='launcher resolved to no script identity (bare interpreter / unresolved entrypoint) — not writing a bare-launcher asset' s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-10/1789069760-3c7626ad-c56d-48a6-b1e7-50daa9ad8813.log' source=AssetSourceType.SCANNER span_id=7711d98256264e39 tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=4ea3eb683976116f5526824947744156
+2026-09-10T19:49:30.833010Z [info     ] skipping MCP server with no identifiable data [endpoint_asset_ingestion.ingestion.mcp_writer] args=None command=node config_entry_name=bare-node filename=mcp_writer.py func_name=_upsert_one_mcp_server lineno=799 plugin_name=None reason='launcher resolved to no script identity (bare interpreter / unresolved entrypoint) — not writing a bare-launcher asset' s3_key='tenant=61750f27-8fbd-42a4-80cf-4191cfb2371a/source=mcp-scanner/date=2026-09-10/1789069760-3c7626ad-c56d-48a6-b1e7-50daa9ad8813.log' source=AssetSourceType.SCANNER span_id=8224556140665bae tenant_uuid=61750f27-8fbd-42a4-80cf-4191cfb2371a trace_flags=01 trace_id=4ea3eb683976116f5526824947744156

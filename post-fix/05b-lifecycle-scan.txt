@@ -1,0 +1,352 @@
+[tss] running real onyx-scanner scan ON the linux machine (54.210.194.96)
+ip-172-31-90-152
+Linux ip-172-31-90-152 6.8.0-1063-aws #66~22.04.1-Ubuntu SMP Fri Aug  7 17:45:18 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+--- onyx-scanner scan ---
+2026-09-10T23:35:19.077837964Z	INFO	Scanner starting	{"version": "dev", "environment": "dev", "command": "onyx-scanner scan", "trigger_method": "", "invocation_source": "", "executable": "/home/ubuntu/onyx-scanner", "pid": 19216, "ppid": 19213, "username": "ubuntu", "user_id": "1000", "group_id": "1000", "euid": 1000, "home_dir": "/home/ubuntu", "hostname": "ip-172-31-90-152", "os": "linux", "platform": "ubuntu", "platform_family": "debian", "os_version": "22.04", "kernel_version": "6.8.0-1063-aws", "kernel_arch": "x86_64", "architecture": "amd64", "go_version": "go1.25.8", "working_dir": "/home/ubuntu"}
+2026-09-10T23:35:19.078090043Z	DEBUG	Scanner flags	{"endpoint_set": true, "api_key_set": true, "dry_run": false, "output": "text", "timeout": "10m0s", "full_scan": true, "session_lookback_window": "720h0m0s", "log_dir": "~/.onyx/mcp-scanner/logs", "verbose": true, "quiet": false, "skip_certs": false, "scanner_api_url_set": false, "claude_ai_connectors": true}
+2026-09-10T23:35:19.078164245Z	INFO	Agent detection mode resolved	{"event": "dsl_detection_mode", "mode": "legacy", "agents": "claude-code,codex", "decided_by": "default", "value": "", "env": "ONYX_SCANNER_DSL_ENABLED", "flag": "--dsl-enabled"}
+2026-09-10T23:35:19.119846657Z	DEBUG	Scan run starting	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "timestamp": "2026-09-10T23:35:19.119145822Z", "full_scan": true, "dry_run": false, "project_walk_timeout": "7m0s", "session_lookback_window": "720h0m0s"}
+2026-09-10T23:35:19.120008424Z	DEBUG	Step start: enumerate user contexts	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "include_other_users": true}
+2026-09-10T23:35:19.120061013Z	DEBUG	Step done: enumerate user contexts	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "users_found": 1, "usernames": ["ubuntu"], "include_other_users": true, "duration_ms": 0}
+2026-09-10T23:35:19.120131201Z	INFO	Scanning users	{"users": 1, "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4"}
+2026-09-10T23:35:19.174470412Z	INFO	email_source_resolved	{"event": "email_source_resolved", "outcome": "not_found", "candidate_count": 0, "email_sources": [], "platform": "linux", "target_home_tail": "ubuntu", "cycle_id": "c4981836-0447-4817-9470-2618beed12f4", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "target_index": 0, "total_targets": 1}
+2026-09-10T23:35:19.174634721Z	INFO	email_candidates_resolved	{"event": "email_candidates_resolved", "outcome": "not_found", "candidate_count": 0, "email_sources": [], "platform": "linux", "target_home_tail": "ubuntu", "cycle_id": "c4981836-0447-4817-9470-2618beed12f4", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "target_index": 0, "total_targets": 1}
+2026-09-10T23:35:19.174685193Z	INFO	app_identity_resolved	{"event": "app_identity_resolved", "outcome": "not_found", "candidate_count": 0, "email_sources": [], "browsers_read": [], "platform": "linux", "target_home_tail": "ubuntu", "cycle_id": "c4981836-0447-4817-9470-2618beed12f4", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "target_index": 0, "total_targets": 1}
+2026-09-10T23:35:19.174727031Z	INFO	slack_identity_resolved	{"event": "slack_identity_resolved", "outcome": "not_found", "candidate_count": 0, "rejection_count": 0, "slack_roots_found": 0, "blobs_read": 0, "platform": "linux", "target_home_tail": "ubuntu", "cycle_id": "c4981836-0447-4817-9470-2618beed12f4", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "target_index": 0, "total_targets": 1}
+2026-09-10T23:35:19.174764586Z	DEBUG	Step start: scan user	{"username": "ubuntu", "home_dir": "/home/ubuntu", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4"}
+2026-09-10T23:35:19.227280927Z	DEBUG	Scanning agents for user	{"username": "ubuntu", "home_dir": "/home/ubuntu"}
+2026-09-10T23:35:19.227479988Z	DEBUG	Phase 1 start: scan static/desktop agents	{"username": "ubuntu", "detectors_count": 88}
+2026-09-10T23:35:19.278266592Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "lm_studio", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.278491785Z	DEBUG	Detector scanned	{"detector": "lm_studio", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.328976682Z	DEBUG	MCP config path exists	{"detector": "claude-code", "username": "ubuntu", "path": "/home/ubuntu/.claude.json"}
+2026-09-10T23:35:19.329111225Z	DEBUG	MCP config path exists	{"detector": "claude-code", "username": "ubuntu", "path": "/home/ubuntu/.claude/settings.json"}
+2026-09-10T23:35:19.329146436Z	DEBUG	MCP config path missing	{"detector": "claude-code", "username": "ubuntu", "path": "/home/ubuntu/.claude/settings.local.json"}
+2026-09-10T23:35:19.329183229Z	DEBUG	MCP config path missing	{"detector": "claude-code", "username": "ubuntu", "path": "/home/ubuntu/.config/claude/settings.json"}
+2026-09-10T23:35:19.329216097Z	DEBUG	MCP config path missing	{"detector": "claude-code", "username": "ubuntu", "path": "/home/ubuntu/.config/claude/settings.local.json"}
+2026-09-10T23:35:19.329250233Z	DEBUG	MCP config path missing	{"detector": "claude-code", "username": "ubuntu", "path": "/etc/claude-code/managed-mcp.json"}
+2026-09-10T23:35:19.329279674Z	DEBUG	MCP config path missing	{"detector": "claude-code", "username": "ubuntu", "path": "/etc/claude-code/managed-settings.json"}
+2026-09-10T23:35:19.329479524Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "claude-code", "detected": true, "evidence_type": "binary_on_path", "evidence_path": "/home/ubuntu/.local/bin/claude", "username": "ubuntu"}
+2026-09-10T23:35:19.330050206Z	INFO	claude.ai org connectors unavailable — no Claude Desktop install	{"platform": "linux", "target_home_tail": "ubuntu", "event": "claude_ai_connectors_no_desktop_install"}
+2026-09-10T23:35:19.330520024Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::bare-node", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330568328Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::weather-py", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330600266Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::weather-py-u", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330631566Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::weather-ts", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330684344Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::xserver", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330720277Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::filemcp", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330832981Z	DEBUG	MCP server found	{"detector": "claude-code", "username": "ubuntu", "name": "mcpServers::poetry-env", "type": "stdio", "scope": "user", "source_config_path": "/home/ubuntu/.claude.json", "gateway_installed": false}
+2026-09-10T23:35:19.330868662Z	DEBUG	Detector scanned	{"detector": "claude-code", "username": "ubuntu", "outcome": "config_parsed", "paths_checked": ["/home/ubuntu/.claude.json", "/home/ubuntu/.claude/settings.json", "/home/ubuntu/.claude/settings.local.json", "/home/ubuntu/.config/claude/settings.json", "/home/ubuntu/.config/claude/settings.local.json", "/etc/claude-code/managed-mcp.json", "/etc/claude-code/managed-settings.json"], "instances": [{"path":"/home/ubuntu/.claude.json","config_exists":true,"mcp_servers":7}], "mcp_servers_total": 7, "duration_ms": 1}
+2026-09-10T23:35:19.381470678Z	DEBUG	MCP config path missing	{"detector": "codex", "username": "ubuntu", "path": "/home/ubuntu/.codex/config.toml"}
+2026-09-10T23:35:19.38170832Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "codex", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.381759222Z	DEBUG	Detector scanned	{"detector": "codex", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.codex/config.toml"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.432114832Z	DEBUG	MCP config path missing	{"detector": "amp", "username": "ubuntu", "path": "/home/ubuntu/.config/amp/settings.json"}
+2026-09-10T23:35:19.432245745Z	DEBUG	MCP config path missing	{"detector": "amp", "username": "ubuntu", "path": "/home/ubuntu/.amp/settings.json"}
+2026-09-10T23:35:19.432403416Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "amp", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.432459324Z	DEBUG	Detector scanned	{"detector": "amp", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/amp/settings.json", "/home/ubuntu/.amp/settings.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.482831431Z	DEBUG	MCP config path missing	{"detector": "crush", "username": "ubuntu", "path": "/home/ubuntu/.config/crush/crush.json"}
+2026-09-10T23:35:19.482964494Z	DEBUG	MCP config path missing	{"detector": "crush", "username": "ubuntu", "path": "/home/ubuntu/.crush/crush.json"}
+2026-09-10T23:35:19.483136118Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "crush", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.483192994Z	DEBUG	Detector scanned	{"detector": "crush", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/crush/crush.json", "/home/ubuntu/.crush/crush.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.533566615Z	DEBUG	MCP config path missing	{"detector": "copilot-cli", "username": "ubuntu", "path": "/home/ubuntu/.copilot/mcp-config.json"}
+2026-09-10T23:35:19.533802319Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "copilot-cli", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.533851632Z	DEBUG	Detector scanned	{"detector": "copilot-cli", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.copilot/mcp-config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.584273286Z	DEBUG	MCP config path missing	{"detector": "gemini_cli", "username": "ubuntu", "path": "/home/ubuntu/.gemini/settings.json"}
+2026-09-10T23:35:19.584510831Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "gemini_cli", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.58455833Z	DEBUG	Detector scanned	{"detector": "gemini_cli", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.gemini/settings.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.634950658Z	DEBUG	MCP config path missing	{"detector": "cursor", "username": "ubuntu", "path": "/home/ubuntu/.cursor/mcp.json"}
+2026-09-10T23:35:19.635255343Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "cursor", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.635329224Z	DEBUG	Detector scanned	{"detector": "cursor", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.cursor/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.685703454Z	DEBUG	MCP config path missing	{"detector": "windsurf", "username": "ubuntu", "path": "/home/ubuntu/.codeium/windsurf/mcp_config.json"}
+2026-09-10T23:35:19.686002983Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "windsurf", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.686076779Z	DEBUG	Detector scanned	{"detector": "windsurf", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.codeium/windsurf/mcp_config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.736531209Z	DEBUG	MCP config path missing	{"detector": "kiro", "username": "ubuntu", "path": "/home/ubuntu/.kiro/settings/mcp.json"}
+2026-09-10T23:35:19.736793732Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kiro", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.736850067Z	DEBUG	Detector scanned	{"detector": "kiro", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.kiro/settings/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.787224046Z	DEBUG	MCP config path missing	{"detector": "snowflake_coco", "username": "ubuntu", "path": "/home/ubuntu/.snowflake/cortex/mcp.json"}
+2026-09-10T23:35:19.787510327Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "snowflake_coco", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.78760582Z	DEBUG	Detector scanned	{"detector": "snowflake_coco", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.snowflake/cortex/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.837982096Z	DEBUG	MCP config path missing	{"detector": "opencode", "username": "ubuntu", "path": "/home/ubuntu/.config/opencode/opencode.json"}
+2026-09-10T23:35:19.838100455Z	DEBUG	MCP config path missing	{"detector": "opencode", "username": "ubuntu", "path": "/home/ubuntu/.config/opencode/opencode.jsonc"}
+2026-09-10T23:35:19.838133807Z	DEBUG	MCP config path missing	{"detector": "opencode", "username": "ubuntu", "path": "/etc/opencode/opencode.json"}
+2026-09-10T23:35:19.838186046Z	DEBUG	MCP config path missing	{"detector": "opencode", "username": "ubuntu", "path": "/etc/opencode/opencode.jsonc"}
+2026-09-10T23:35:19.838331166Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "opencode", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.838390686Z	DEBUG	Detector scanned	{"detector": "opencode", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/opencode/opencode.json", "/home/ubuntu/.config/opencode/opencode.jsonc", "/etc/opencode/opencode.json", "/etc/opencode/opencode.jsonc"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.888794302Z	DEBUG	MCP config path missing	{"detector": "antigravity-cli", "username": "ubuntu", "path": "/home/ubuntu/.gemini/config/mcp_config.json"}
+2026-09-10T23:35:19.888953443Z	DEBUG	MCP config path missing	{"detector": "antigravity-cli", "username": "ubuntu", "path": "/home/ubuntu/.gemini/antigravity-cli/mcp_config.json"}
+2026-09-10T23:35:19.889120614Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "antigravity-cli", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.889174649Z	DEBUG	Detector scanned	{"detector": "antigravity-cli", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.gemini/config/mcp_config.json", "/home/ubuntu/.gemini/antigravity-cli/mcp_config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.939559178Z	DEBUG	MCP config path missing	{"detector": "openclaw", "username": "ubuntu", "path": "/home/ubuntu/.openclaw/openclaw.json"}
+2026-09-10T23:35:19.939823657Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "openclaw", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:19.939872677Z	DEBUG	Detector scanned	{"detector": "openclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.openclaw/openclaw.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:19.990255551Z	DEBUG	MCP config path missing	{"detector": "copilot", "username": "ubuntu", "path": "/home/ubuntu/.config/Code/User/mcp.json"}
+2026-09-10T23:35:19.990732678Z	DEBUG	Detector scanned	{"detector": "copilot", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/Code/User/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.041137917Z	DEBUG	MCP config path missing	{"detector": "vscode-amp", "username": "ubuntu", "path": "/home/ubuntu/.config/Code/User/settings.json"}
+2026-09-10T23:35:20.041605892Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "vscode-amp", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:20.041665786Z	DEBUG	Detector scanned	{"detector": "vscode-amp", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/Code/User/settings.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.092083125Z	DEBUG	MCP config path missing	{"detector": "junie", "username": "ubuntu", "path": "/home/ubuntu/.junie/mcp/mcp.json"}
+2026-09-10T23:35:20.093490628Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "junie", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:20.093569646Z	DEBUG	Detector scanned	{"detector": "junie", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.junie/mcp/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 1}
+2026-09-10T23:35:20.143987441Z	DEBUG	MCP config path missing	{"detector": "jetbrains-copilot", "username": "ubuntu", "path": "/home/ubuntu/.config/github-copilot/intellij/mcp.json"}
+2026-09-10T23:35:20.145371199Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "jetbrains-copilot", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:20.145463473Z	DEBUG	Detector scanned	{"detector": "jetbrains-copilot", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/github-copilot/intellij/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 1}
+2026-09-10T23:35:20.197192199Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "jetbrains-ide", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:20.197313664Z	DEBUG	Detector scanned	{"detector": "jetbrains-ide", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 1}
+2026-09-10T23:35:20.247668593Z	DEBUG	MCP config path missing	{"detector": "vscode-continue", "username": "ubuntu", "path": "/home/ubuntu/.continue/config.yaml"}
+2026-09-10T23:35:20.247802532Z	DEBUG	MCP config path missing	{"detector": "vscode-continue", "username": "ubuntu", "path": "/home/ubuntu/.continue/config.json"}
+2026-09-10T23:35:20.248213471Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "vscode-continue", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:20.248280526Z	DEBUG	Detector scanned	{"detector": "vscode-continue", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.continue/config.yaml", "/home/ubuntu/.continue/config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.298640398Z	DEBUG	Detector scanned	{"detector": "zoom", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.349114105Z	DEBUG	Detector scanned	{"detector": "figma", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.399545986Z	DEBUG	Detector scanned	{"detector": "notion", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.450040372Z	DEBUG	Detector scanned	{"detector": "perplexity", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.50079733Z	DEBUG	Detector scanned	{"detector": "superhuman", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.551273836Z	DEBUG	Detector scanned	{"detector": "replit", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.601753535Z	DEBUG	Detector scanned	{"detector": "granola", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.652296466Z	DEBUG	Detector scanned	{"detector": "superwhisper", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.702765143Z	DEBUG	Detector scanned	{"detector": "clickup-brain", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.753987855Z	DEBUG	Detector scanned	{"detector": "genspark", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.80757852Z	DEBUG	Detector scanned	{"detector": "postman", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.859748549Z	DEBUG	Detector scanned	{"detector": "krisp", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.910239956Z	DEBUG	Detector scanned	{"detector": "scribe", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:20.960680168Z	DEBUG	Detector scanned	{"detector": "manus", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.011186187Z	DEBUG	Detector scanned	{"detector": "gemini_desktop", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.061621359Z	DEBUG	Detector scanned	{"detector": "box_drive", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.112084032Z	DEBUG	Detector scanned	{"detector": "tableau", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.162647737Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "chatgpt", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.162788866Z	DEBUG	Detector scanned	{"detector": "chatgpt", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.213481398Z	DEBUG	Detector scanned	{"detector": "microsoft_copilot", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.263989668Z	DEBUG	Detector scanned	{"detector": "github_copilot", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.314416963Z	DEBUG	Detector scanned	{"detector": "microsoft_scout", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.365064347Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "ollama", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.365177736Z	DEBUG	Detector scanned	{"detector": "ollama", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.415551711Z	DEBUG	MCP config path missing	{"detector": "antigravity_desktop", "username": "ubuntu", "path": "/home/ubuntu/.gemini/config/mcp_config.json"}
+2026-09-10T23:35:21.415734331Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "antigravity_desktop", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.415818626Z	DEBUG	Detector scanned	{"detector": "antigravity_desktop", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.gemini/config/mcp_config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.466202353Z	DEBUG	MCP config path missing	{"detector": "antigravity-ide", "username": "ubuntu", "path": "/home/ubuntu/.gemini/config/mcp_config.json"}
+2026-09-10T23:35:21.466327189Z	DEBUG	MCP config path missing	{"detector": "antigravity-ide", "username": "ubuntu", "path": "/home/ubuntu/.gemini/antigravity-ide/mcp_config.json"}
+2026-09-10T23:35:21.466486513Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "antigravity-ide", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.466538745Z	DEBUG	Detector scanned	{"detector": "antigravity-ide", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.gemini/config/mcp_config.json", "/home/ubuntu/.gemini/antigravity-ide/mcp_config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.516946177Z	DEBUG	MCP config path missing	{"detector": "claude", "username": "ubuntu", "path": "/home/ubuntu/.config/Claude/claude_desktop_config.json"}
+2026-09-10T23:35:21.517109134Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "claude", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.51718913Z	DEBUG	Detector scanned	{"detector": "claude", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/Claude/claude_desktop_config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.567583981Z	DEBUG	MCP config path missing	{"detector": "claude-cowork", "username": "ubuntu", "path": "/home/ubuntu/.config/Claude/claude_desktop_config.json"}
+2026-09-10T23:35:21.567759311Z	DEBUG	Detector scanned	{"detector": "claude-cowork", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.config/Claude/claude_desktop_config.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.618380034Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "code-puppy", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.618512142Z	DEBUG	Detector scanned	{"detector": "code-puppy", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.6689102Z	DEBUG	MCP config path missing	{"detector": "wibey", "username": "ubuntu", "path": "/home/ubuntu/.wibey/.mcp.json"}
+2026-09-10T23:35:21.66903398Z	DEBUG	MCP config path missing	{"detector": "wibey", "username": "ubuntu", "path": "/home/ubuntu/.wibey/wibey-vscode/mcp.json"}
+2026-09-10T23:35:21.669109331Z	DEBUG	MCP config path missing	{"detector": "wibey", "username": "ubuntu", "path": "/home/ubuntu/.wibey/wibey-jetbrains/mcp.json"}
+2026-09-10T23:35:21.669224287Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "wibey", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:21.669272837Z	DEBUG	Detector scanned	{"detector": "wibey", "username": "ubuntu", "outcome": "not_installed", "paths_checked": ["/home/ubuntu/.wibey/.mcp.json", "/home/ubuntu/.wibey/wibey-vscode/mcp.json", "/home/ubuntu/.wibey/wibey-jetbrains/mcp.json"], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.719659845Z	DEBUG	Detector scanned	{"detector": "onyx-browser-extension", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.770104693Z	DEBUG	Detector scanned	{"detector": "aider", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.820597299Z	DEBUG	Detector scanned	{"detector": "amazon-q-developer-cli", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.871135585Z	DEBUG	Detector scanned	{"detector": "claude-engineer", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:21.945047241Z	DEBUG	Detector scanned	{"detector": "claw-code", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 23}
+2026-09-10T23:35:21.995625063Z	DEBUG	Detector scanned	{"detector": "cline", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.046096219Z	DEBUG	Detector scanned	{"detector": "devika", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.096579961Z	DEBUG	Detector scanned	{"detector": "fastclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.147098502Z	DEBUG	Detector scanned	{"detector": "freeclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.197584777Z	DEBUG	Detector scanned	{"detector": "goclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.248072414Z	DEBUG	Detector scanned	{"detector": "goose", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.298539874Z	DEBUG	Detector scanned	{"detector": "gpt-pilot", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.348984574Z	DEBUG	Detector scanned	{"detector": "gptme", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.39950422Z	DEBUG	Detector scanned	{"detector": "hermes-agent", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.450009836Z	DEBUG	Detector scanned	{"detector": "ironclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.500622947Z	DEBUG	Detector scanned	{"detector": "khoj", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.551094744Z	DEBUG	Detector scanned	{"detector": "kimi-cli", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.601561225Z	DEBUG	Detector scanned	{"detector": "mini-swe-agent", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.652080538Z	DEBUG	Detector scanned	{"detector": "nanobot", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.702511671Z	DEBUG	Detector scanned	{"detector": "nebula", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.752969292Z	DEBUG	Detector scanned	{"detector": "nullclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.803450946Z	DEBUG	Detector scanned	{"detector": "open-codex", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.853990099Z	DEBUG	Detector scanned	{"detector": "open-interpreter", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.904455972Z	DEBUG	Detector scanned	{"detector": "open-swe", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:22.954910241Z	DEBUG	Detector scanned	{"detector": "open-webui", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.005366454Z	DEBUG	Detector scanned	{"detector": "openagent", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.055859895Z	DEBUG	Detector scanned	{"detector": "openhuman", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.106392402Z	DEBUG	Detector scanned	{"detector": "OpenManus", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.156816383Z	DEBUG	Detector scanned	{"detector": "picoclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.2073456Z	DEBUG	Detector scanned	{"detector": "QClaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.257906748Z	DEBUG	Detector scanned	{"detector": "qwen-code", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.308420813Z	DEBUG	Detector scanned	{"detector": "QwenPaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.360927884Z	DEBUG	Detector scanned	{"detector": "RA.Aid", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 2}
+2026-09-10T23:35:23.412156801Z	DEBUG	Detector scanned	{"detector": "refact-lsp", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.463340797Z	DEBUG	Detector scanned	{"detector": "Roo-Code", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.513840401Z	DEBUG	Detector scanned	{"detector": "SWE-agent", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.564306571Z	DEBUG	Detector scanned	{"detector": "tinyclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.614909957Z	DEBUG	Detector scanned	{"detector": "trae-agent", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.665487859Z	DEBUG	Detector scanned	{"detector": "trustclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.716004144Z	DEBUG	Detector scanned	{"detector": "zeroclaw", "username": "ubuntu", "outcome": "not_installed", "paths_checked": [], "instances": [], "mcp_servers_total": 0, "duration_ms": 0}
+2026-09-10T23:35:23.716134827Z	DEBUG	Phase 1 done: scan static/desktop agents	{"username": "ubuntu", "agents_detected": 1, "agent_names": ["claude-code"], "duration_ms": 4488}
+2026-09-10T23:35:23.716215084Z	DEBUG	Preparing to send static payload for agent	{"agent": "claude-code", "username": "ubuntu", "config_path": "/home/ubuntu/.claude.json", "mcp_servers_count": 7}
+2026-09-10T23:35:23.716577779Z	INFO	mcp_file_fingerprint	{"event": "mcp_file_fingerprint", "platform": "linux", "agent": "claude-code", "username": "ubuntu", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "local_mcp_servers": 7, "eligible": 2, "fingerprinted": 2, "shell_command_form": 0}
+2026-09-10T23:35:23.718871358Z	DEBUG	Creating payload	{"agent": "claude-code", "username": "ubuntu"}
+2026-09-10T23:35:23.726492449Z	DEBUG	payload sent to backend	{"payload_id": "scanner-agent-claude-code-c671ead5-79d7-4372-8e9a-1ca2d524d1fd", "size_bytes": 3384}
+2026-09-10T23:35:23.72670483Z	DEBUG	Step start: collect session events	{"username": "ubuntu", "lookback_window": "720h0m0s", "detectors_considered": 88, "detectors_with_sessions": [], "detectors_skipped_not_detected": ["lm_studio", "codex", "amp", "crush", "copilot-cli", "gemini_cli", "cursor", "windsurf", "kiro", "snowflake_coco", "opencode", "antigravity-cli", "openclaw", "copilot", "vscode-amp", "junie", "jetbrains-copilot", "jetbrains-ide", "vscode-continue", "zoom", "figma", "notion", "perplexity", "superhuman", "replit", "granola", "superwhisper", "clickup-brain", "genspark", "postman", "krisp", "scribe", "manus", "gemini_desktop", "box_drive", "tableau", "chatgpt", "microsoft_copilot", "github_copilot", "microsoft_scout", "ollama", "antigravity_desktop", "antigravity-ide", "claude", "claude-cowork", "code-puppy", "wibey", "onyx-browser-extension", "aider", "amazon-q-developer-cli", "claude-engineer", "claw-code", "cline", "devika", "fastclaw", "freeclaw", "goclaw", "goose", "gpt-pilot", "gptme", "hermes-agent", "ironclaw", "khoj", "kimi-cli", "mini-swe-agent", "nanobot", "nebula", "nullclaw", "open-codex", "open-interpreter", "open-swe", "open-webui", "openagent", "openhuman", "OpenManus", "picoclaw", "QClaw", "qwen-code", "QwenPaw", "RA.Aid", "refact-lsp", "Roo-Code", "SWE-agent", "tinyclaw", "trae-agent", "trustclaw", "zeroclaw"], "detectors_skipped_no_sources": ["claude-code"]}
+2026-09-10T23:35:23.726849485Z	DEBUG	Session substep skipped	{"agent": "lm_studio", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.726907503Z	DEBUG	Session substep skipped	{"agent": "claude-code", "username": "ubuntu", "reason": "no_session_sources"}
+2026-09-10T23:35:23.726941184Z	DEBUG	Session substep skipped	{"agent": "codex", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.726969738Z	DEBUG	Session substep skipped	{"agent": "amp", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72700685Z	DEBUG	Session substep skipped	{"agent": "crush", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727053448Z	DEBUG	Session substep skipped	{"agent": "copilot-cli", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727086028Z	DEBUG	Session substep skipped	{"agent": "gemini_cli", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72712131Z	DEBUG	Session substep skipped	{"agent": "cursor", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727153641Z	DEBUG	Session substep skipped	{"agent": "windsurf", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727192158Z	DEBUG	Session substep skipped	{"agent": "kiro", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727219569Z	DEBUG	Session substep skipped	{"agent": "snowflake_coco", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727249808Z	DEBUG	Session substep skipped	{"agent": "opencode", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727288196Z	DEBUG	Session substep skipped	{"agent": "antigravity-cli", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727323504Z	DEBUG	Session substep skipped	{"agent": "openclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727357984Z	DEBUG	Session substep skipped	{"agent": "copilot", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727427434Z	DEBUG	Session substep skipped	{"agent": "vscode-amp", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727460705Z	DEBUG	Session substep skipped	{"agent": "junie", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727492672Z	DEBUG	Session substep skipped	{"agent": "jetbrains-copilot", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727519112Z	DEBUG	Session substep skipped	{"agent": "jetbrains-ide", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727591791Z	DEBUG	Session substep skipped	{"agent": "vscode-continue", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727628379Z	DEBUG	Session substep skipped	{"agent": "zoom", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727649555Z	DEBUG	Session substep skipped	{"agent": "figma", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72768307Z	DEBUG	Session substep skipped	{"agent": "notion", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72770535Z	DEBUG	Session substep skipped	{"agent": "perplexity", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727728182Z	DEBUG	Session substep skipped	{"agent": "superhuman", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727749641Z	DEBUG	Session substep skipped	{"agent": "replit", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727786118Z	DEBUG	Session substep skipped	{"agent": "granola", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727816145Z	DEBUG	Session substep skipped	{"agent": "superwhisper", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727838832Z	DEBUG	Session substep skipped	{"agent": "clickup-brain", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727864151Z	DEBUG	Session substep skipped	{"agent": "genspark", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727905629Z	DEBUG	Session substep skipped	{"agent": "postman", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727930212Z	DEBUG	Session substep skipped	{"agent": "krisp", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727952084Z	DEBUG	Session substep skipped	{"agent": "scribe", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.727979313Z	DEBUG	Session substep skipped	{"agent": "manus", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728013473Z	DEBUG	Session substep skipped	{"agent": "gemini_desktop", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728036725Z	DEBUG	Session substep skipped	{"agent": "box_drive", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728062816Z	DEBUG	Session substep skipped	{"agent": "tableau", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72808491Z	DEBUG	Session substep skipped	{"agent": "chatgpt", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728106729Z	DEBUG	Session substep skipped	{"agent": "microsoft_copilot", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728128713Z	DEBUG	Session substep skipped	{"agent": "github_copilot", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728154176Z	DEBUG	Session substep skipped	{"agent": "microsoft_scout", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728180746Z	DEBUG	Session substep skipped	{"agent": "ollama", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728200829Z	DEBUG	Session substep skipped	{"agent": "antigravity_desktop", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728240932Z	DEBUG	Session substep skipped	{"agent": "antigravity-ide", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728263953Z	DEBUG	Session substep skipped	{"agent": "claude", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728286174Z	DEBUG	Session substep skipped	{"agent": "claude-cowork", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72830885Z	DEBUG	Session substep skipped	{"agent": "code-puppy", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728335622Z	DEBUG	Session substep skipped	{"agent": "wibey", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728361574Z	DEBUG	Session substep skipped	{"agent": "onyx-browser-extension", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728388529Z	DEBUG	Session substep skipped	{"agent": "aider", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728413731Z	DEBUG	Session substep skipped	{"agent": "amazon-q-developer-cli", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728435462Z	DEBUG	Session substep skipped	{"agent": "claude-engineer", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72846019Z	DEBUG	Session substep skipped	{"agent": "claw-code", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728482682Z	DEBUG	Session substep skipped	{"agent": "cline", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72850898Z	DEBUG	Session substep skipped	{"agent": "devika", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728538253Z	DEBUG	Session substep skipped	{"agent": "fastclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728566284Z	DEBUG	Session substep skipped	{"agent": "freeclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728593293Z	DEBUG	Session substep skipped	{"agent": "goclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728615709Z	DEBUG	Session substep skipped	{"agent": "goose", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728639981Z	DEBUG	Session substep skipped	{"agent": "gpt-pilot", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728664493Z	DEBUG	Session substep skipped	{"agent": "gptme", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728690005Z	DEBUG	Session substep skipped	{"agent": "hermes-agent", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728715743Z	DEBUG	Session substep skipped	{"agent": "ironclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728743716Z	DEBUG	Session substep skipped	{"agent": "khoj", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728776381Z	DEBUG	Session substep skipped	{"agent": "kimi-cli", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728798733Z	DEBUG	Session substep skipped	{"agent": "mini-swe-agent", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728820306Z	DEBUG	Session substep skipped	{"agent": "nanobot", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728843773Z	DEBUG	Session substep skipped	{"agent": "nebula", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728869641Z	DEBUG	Session substep skipped	{"agent": "nullclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728918582Z	DEBUG	Session substep skipped	{"agent": "open-codex", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728943821Z	DEBUG	Session substep skipped	{"agent": "open-interpreter", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72897035Z	DEBUG	Session substep skipped	{"agent": "open-swe", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.728995309Z	DEBUG	Session substep skipped	{"agent": "open-webui", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729018179Z	DEBUG	Session substep skipped	{"agent": "openagent", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729040927Z	DEBUG	Session substep skipped	{"agent": "openhuman", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729067921Z	DEBUG	Session substep skipped	{"agent": "OpenManus", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729092943Z	DEBUG	Session substep skipped	{"agent": "picoclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729116753Z	DEBUG	Session substep skipped	{"agent": "QClaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729143844Z	DEBUG	Session substep skipped	{"agent": "qwen-code", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729167569Z	DEBUG	Session substep skipped	{"agent": "QwenPaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.72919127Z	DEBUG	Session substep skipped	{"agent": "RA.Aid", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729214334Z	DEBUG	Session substep skipped	{"agent": "refact-lsp", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729245375Z	DEBUG	Session substep skipped	{"agent": "Roo-Code", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729272389Z	DEBUG	Session substep skipped	{"agent": "SWE-agent", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729298751Z	DEBUG	Session substep skipped	{"agent": "tinyclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729329951Z	DEBUG	Session substep skipped	{"agent": "trae-agent", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729358061Z	DEBUG	Session substep skipped	{"agent": "trustclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729382261Z	DEBUG	Session substep skipped	{"agent": "zeroclaw", "username": "ubuntu", "reason": "no_detected_agent"}
+2026-09-10T23:35:23.729410538Z	DEBUG	Step done: collect session events	{"username": "ubuntu", "session_files_examined": 0, "conversations_sent": 0, "chunks_sent": 0, "agents_with_sessions_sent": 0, "duration_ms": 2}
+2026-09-10T23:35:23.72944954Z	INFO	Phase 2 start: scan project-level configs	{"username": "ubuntu", "home_dir": "/home/ubuntu", "full_scan": true, "skip_home_walk_for_root": false, "project_walk_timeout": "7m0s"}
+2026-09-10T23:35:23.729971415Z	DEBUG	Step start: walk filesystem for project configs	{"username": "ubuntu", "root_dir": "/home/ubuntu", "configured_timeout": "7m0s", "effective_budget": "6m59.999478211s", "detectors_with_skills": ["claude-code", "codex", "copilot-cli", "cursor", "snowflake_coco", "antigravity-cli", "openclaw", "copilot", "vscode-continue", "microsoft_scout", "antigravity_desktop", "antigravity-ide", "wibey"]}
+2026-09-10T23:35:23.744450938Z	DEBUG	Step done: walk filesystem for project configs	{"username": "ubuntu", "root_dir": "/home/ubuntu", "dirs_scanned": 26, "dirs_skipped": 3, "files_checked": 40, "walk_duration": "14.320633ms", "project_file_hits_total": 0, "project_file_hits_by_detector": {}, "skill_file_hits_total": 0, "skill_file_hits_by_detector": {}, "unique_projects_by_detector": {"OpenManus":0,"QClaw":0,"QwenPaw":0,"RA.Aid":0,"Roo-Code":0,"SWE-agent":0,"aider":0,"amazon-q-developer-cli":0,"amp":0,"claude":0,"claude-code":0,"claude-cowork":0,"claude-engineer":0,"claw-code":0,"cline":0,"code-puppy":0,"codex":0,"copilot":0,"copilot-cli":0,"crush":0,"cursor":0,"devika":0,"fastclaw":0,"freeclaw":0,"gemini_cli":0,"goclaw":0,"goose":0,"gpt-pilot":0,"gptme":0,"hermes-agent":0,"ironclaw":0,"jetbrains-copilot":0,"jetbrains-ide":0,"junie":0,"khoj":0,"kimi-cli":0,"kiro":0,"mini-swe-agent":0,"nanobot":0,"nebula":0,"nullclaw":0,"open-codex":0,"open-interpreter":0,"open-swe":0,"open-webui":0,"openagent":0,"openclaw":0,"opencode":0,"openhuman":0,"picoclaw":0,"qwen-code":0,"refact-lsp":0,"snowflake_coco":0,"tinyclaw":0,"trae-agent":0,"trustclaw":0,"vscode-amp":0,"vscode-continue":0,"wibey":0,"windsurf":0,"zeroclaw":0}, "unique_skill_dirs_by_detector": {}, "duration_ms": 14}
+2026-09-10T23:35:23.744939929Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "lm_studio", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.745136648Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "claude-code", "detected": true, "evidence_type": "binary_on_path", "evidence_path": "/home/ubuntu/.local/bin/claude", "username": "ubuntu"}
+2026-09-10T23:35:23.745569986Z	INFO	claude.ai org connectors unavailable — no Claude Desktop install	{"platform": "linux", "target_home_tail": "ubuntu", "event": "claude_ai_connectors_no_desktop_install"}
+2026-09-10T23:35:23.746108959Z	DEBUG	Sending project payload for agent	{"agent": "claude-code", "username": "ubuntu", "projects_count": 0, "mcp_servers_count": 7}
+2026-09-10T23:35:23.746432323Z	INFO	mcp_file_fingerprint	{"event": "mcp_file_fingerprint", "platform": "linux", "agent": "claude-code", "username": "ubuntu", "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "local_mcp_servers": 7, "eligible": 2, "fingerprinted": 2, "shell_command_form": 0}
+2026-09-10T23:35:23.748703478Z	DEBUG	Creating payload	{"agent": "claude-code", "username": "ubuntu"}
+2026-09-10T23:35:23.754705913Z	DEBUG	payload sent to backend	{"payload_id": "scanner-agent-claude-code-f57d7872-cd02-4c79-9d20-c651c47d6152", "size_bytes": 3639}
+2026-09-10T23:35:23.754991963Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "codex", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.755154289Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "amp", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.755306563Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "crush", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.75545241Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "copilot-cli", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.755573432Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "gemini_cli", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.755735213Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "cursor", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.755932271Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "windsurf", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.756102218Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "kiro", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.756210033Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "snowflake_coco", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.756328985Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "opencode", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.756439786Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "antigravity-cli", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.756590201Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "openclaw", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.757224677Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "vscode-amp", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.759085034Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "junie", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.760459937Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "jetbrains-copilot", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.761709146Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "jetbrains-ide", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.76210981Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "vscode-continue", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762185922Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "chatgpt", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762327513Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "ollama", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762419987Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "antigravity_desktop", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762511711Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "antigravity-ide", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762585153Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "claude", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762791461Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "code-puppy", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.762878726Z	INFO	agent_detection	{"event": "agent_detection", "platform": "linux", "agent": "wibey", "detected": false, "evidence_type": "none", "evidence_path": "", "username": "ubuntu"}
+2026-09-10T23:35:23.764500168Z	DEBUG	Phase 2 done: scan project-level configs	{"username": "ubuntu", "project_payloads_sent": 1, "registry_hits": 0, "full_scan": true, "duration_ms": 35}
+2026-09-10T23:35:23.764682682Z	INFO	No additional agents found
+2026-09-10T23:35:23.765012373Z	INFO	agent_detection	{"parity_shadow": true, "event": "agent_detection", "platform": "linux", "agent": "claude-code", "detected": true, "evidence_type": "dsl_dir", "evidence_path": "/home/ubuntu/.claude", "username": "ubuntu"}
+2026-09-10T23:35:23.767118674Z	INFO	claude.ai org connectors unavailable — no Claude Desktop install	{"parity_shadow": true, "platform": "linux", "target_home_tail": "ubuntu", "event": "claude_ai_connectors_no_desktop_install"}
+2026-09-10T23:35:23.767799914Z	WARN	parity: implementations differ	{"event": "parity_result", "agent": "claude-code", "username": "ubuntu", "differences": 3, "volatile": 0, "anchor_differs": false}
+2026-09-10T23:35:23.767849004Z	WARN	parity: difference	{"event": "parity_difference", "agent": "claude-code", "username": "ubuntu", "path": "installEvidencePath", "kind": "value", "shipped": "\"/home/ubuntu/.local/bin/claude\"", "shadow": "\"/home/ubuntu/.claude\"", "detail": "", "anchor_differs": false}
+2026-09-10T23:35:23.767919009Z	WARN	parity: difference	{"event": "parity_difference", "agent": "claude-code", "username": "ubuntu", "path": "installEvidenceType", "kind": "value", "shipped": "\"binary_on_path\"", "shadow": "\"dsl_dir\"", "detail": "", "anchor_differs": false}
+2026-09-10T23:35:23.76796927Z	WARN	parity: difference	{"event": "parity_difference", "agent": "claude-code", "username": "ubuntu", "path": "mcpServers", "kind": "member", "shipped": "7 entries", "shadow": "7 entries", "detail": "same length, different members. 2 only on the left (showing 2): {\"args\":[\"/root/filemcp.js\"],\"command\":\"node\",\"configEntryName\":\"filemcp\",\"fileContentHash\":\"5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5\",\"…, {\"args\":[\"/srv/weather/main.ts\"],\"command\":\"bun\",\"configEntryName\":\"weather-ts\",\"fileContentHash\":\"922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25…", "anchor_differs": false}
+2026-09-10T23:35:23.774520132Z	DEBUG	Step done: scan user	{"username": "ubuntu", "home_dir": "/home/ubuntu", "payloads_sent": 2, "duration_ms": 4599, "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4"}
+2026-09-10T23:35:23.77463884Z	DEBUG	Step start: send scan summary	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4"}
+2026-09-10T23:35:23.774842108Z	INFO	Built end-of-scan guard aggregate	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "guard_scan_complete": false, "guarded_agents": 1}
+2026-09-10T23:35:23.779876174Z	DEBUG	payload sent to backend	{"payload_id": "scanner-summary-5bf803ae-2755-4fc9-be9e-6767ba1070dd", "size_bytes": 4147}
+2026-09-10T23:35:23.780006287Z	DEBUG	Step done: send scan summary	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "duration_ms": 5}
+2026-09-10T23:35:23.780040338Z	DEBUG	Step start: send scan logs	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4"}
+2026-09-10T23:35:23.788091977Z	DEBUG	payload sent to backend	{"payload_id": "scanner-logs-c4981836-0447-4817-9470-2618beed12f4", "size_bytes": 68890}
+2026-09-10T23:35:23.78829229Z	DEBUG	Step done: send scan logs	{"scan_run_id": "c4981836-0447-4817-9470-2618beed12f4", "duration_ms": 8}
+2026-09-10T23:35:23.78832013Z	INFO	Scan run completed	{"payloads_sent": 2, "users": 1, "agents_detected_total": 1, "mcp_servers_total": 7, "projects_total": 0, "skills_total": 0, "duration_ms": 4655, "scan_run_id": "c4981836-0447-4817-9470-2618beed12f4"}
+2026-09-10T23:35:23.788355405Z	INFO	Scan completed successfully
+2026-09-10T23:35:23.789189252Z	INFO	Skipping container scan — Docker daemon unavailable	{"event": "docker_daemon_unavailable", "error": "Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?"}
+2026-09-10T23:35:23.789240932Z	INFO	Docker scan completed	{"containers": 0}
+
+ubuntu (/home/ubuntu)
+
+Total: 1 agents, 7 MCP servers
+
+┌─────────────┬─────────┬────────────┬───────┬─────────────────┬─────────────────┬──────────────┬─────────────────────────────────┐
+│    Agent    │ Version │ Onyx Hooks │ Scope │ MCP Server Name │ MCP Server Type │ Onyx Gateway │       MCP Server Command        │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│ claude-code │ Unknown │ Yes        │ user  │ xserver         │ stdio           │ No           │ uv run --directory /x server.py │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│             │         │            │ user  │ filemcp         │ stdio           │ No           │ node /root/filemcp.js           │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│             │         │            │ user  │ poetry-env      │ stdio           │ No           │ poetry install                  │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│             │         │            │ user  │ bare-node       │ stdio           │ No           │ node                            │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│             │         │            │ user  │ weather-py      │ stdio           │ No           │ python3 /srv/weather/main.py    │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│             │         │            │ user  │ weather-py-u    │ stdio           │ No           │ python -u /srv/weather/main.py  │
+├─────────────┼─────────┼────────────┼───────┼─────────────────┼─────────────────┼──────────────┼─────────────────────────────────┤
+│             │         │            │ user  │ weather-ts      │ stdio           │ No           │ bun /srv/weather/main.ts        │
+└─────────────┴─────────┴────────────┴───────┴─────────────────┴─────────────────┴──────────────┴─────────────────────────────────┘
+[tss] scan ok — scan_run_id=c4981836-0447-4817-9470-2618beed12f4 hostname=ip-172-31-90-152
+SCANNED linux c4981836-0447-4817-9470-2618beed12f4 ip-172-31-90-152

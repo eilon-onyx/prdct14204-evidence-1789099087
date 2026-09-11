@@ -1,0 +1,65 @@
+################################################################
+# 20-replay-after.txt  (AT7 — AFTER each replay pass; contents diffed)
+# test_plan.json at7 flow steps 2-4:
+#   step2 SAME PAYLOAD TWICE  — re-run the identical scan upload through the Kong front door.
+#   step3 SAME MESSAGE TWICE  — force a GENUINE redelivery of the original S3-event message
+#                               (visibility-timeout lapse / consumer interrupt); never hand-send.
+#   step4 diff after each: contents identical modulo timestamps; nothing created/duplicated/
+#                          resurrected (at1's lifecycle-deleted asset stays deleted).
+# Deployed lane image: localhost:5001/onyx/endpoint-asset-ingestion:local-fix-e6a46a3e36
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-10T23:44Z (PassA1) .. 2026-09-10T23:54Z (PassB)
+################################################################
+
+===== PASS A1 — SAME PAYLOAD TWICE (byte-identical scan re-uploaded through Kong key-auth) =====
+The identical scan payload was re-driven through the real Kong ingest front door
+(scan_run fa5b653d-...; full transcript /tmp/at7-passA1-scan.txt, posted with header apikey:,
+HTTP 200 "Scan completed successfully"). Then the snapshot was retaken and diffed against
+19-replay-before.txt:
+
+  $ diff  19-replay-before(snapshot)  afterA1(snapshot)
+  (no output) — IDENTICAL. The idempotent re-upload created ZERO new rows,
+  ZERO duplicates, ZERO resurrections. Second pass = pure no-op on content columns.
+
+===== PASS B — SAME MESSAGE TWICE (genuine SQS at-least-once redelivery, NOT a re-upload) =====
+Mechanism (never a hand-sent queue message): the real current-state scanner object was placed in
+S3, firing a genuine `s3:ObjectCreated` notification -> ONE real queue message. An observer received
+it WITHOUT deleting (interrupted consumer, visibility-timeout 12s). On visibility lapse SQS
+redelivered the SAME message to the running lane, which processed it idempotently and deleted it.
+
+The lane's own redelivery signal (message_handler.py, fires when _sys_ApproximateReceiveCount > 1):
+  2026-09-10T23:53:19.192817Z [info     ] redelivered queue message (idempotent reprocess) [endpoint_asset_ingestion.consumer.message_handler] filename=message_handler.py func_name=handle lineno=82 message_id=3caffbe5-98b4-466f-8514-840bb80dfdbf receive_count=2 span_id=ed23bba3eb24927e trace_flags=01 trace_id=6741e275940d6a0bb13c5762163311cc
+  -> receive_count=2 on the SAME message_id = a genuine second delivery of one message.
+
+Idempotency signals emitted by the lane on the redelivery (from the pod logs):
+  * "ingested scanner object" ... outcome=processed          (object handled end to end)
+  * "custom-data embedding already started for this object — redelivery no-op"  (app-level replay guard)
+  * "skipping MCP server with no identifiable data ... reason='launcher resolved to no script
+     identity (bare interpreter / unresolved entrypoint) — not writing a bare-launcher asset'"
+     (the ticket's core guard STILL firing on the redelivery — no bare-launcher identity minted)
+  * "Completed message message_id=3caffbe5-..."             (message deleted after safe reprocess)
+
+  $ diff  beforeB(snapshot)  afterB(snapshot)
+  (no output) — IDENTICAL. The genuine redelivery changed NOTHING on content columns.
+
+===== GUARD — at1 lifecycle-deleted asset is NOT resurrected by the replay =====
+weather/main.py in the post-replay snapshot (afterB) — its version-history + connection state
+is UNCHANGED from the at1 lifecycle end state (content-version 7c1052fc row + stale 'unknown'
+row under ONE identity; active AgentToMcp connection on the stale row; old content-version
+connection soft-retired). No replay pass re-created the retired content-version connection or
+forked a second identity:
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350|Local MCP Server (weather/main.py)|AssetTypeMCP|AssetStatusDiscovered|f|File
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|unknown|Local MCP Server (weather/main.py)|AssetTypeMCP|AssetStatusDiscovered|f|File
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350|AgentToMcp|t
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|unknown|AgentToMcp|f
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py::unknown
+  local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py|Local MCP Server (weather/main.py)
+
+################################################################
+# VERDICT (at7 replay):
+#  * SAME PAYLOAD TWICE  -> zero new rows / zero resurrections (IDENTICAL diff).            ✓
+#  * SAME MESSAGE TWICE  -> genuine SQS redelivery (receive_count=2) is a content no-op.    ✓
+#  * Lifecycle-deleted asset stays deleted; no bare-launcher identity minted on replay.     ✓
+# All read back from the tenant DB, not asserted from a unit test.
+################################################################

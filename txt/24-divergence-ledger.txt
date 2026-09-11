@@ -1,0 +1,49 @@
+################################################################
+# 24-divergence-ledger.txt  (AT8 clause — every cross-lane divergence, with DIRECTION stated. A new-lane
+#   LOSS is a FAIL, not a ledgerable divergence; a new-lane-only ADD is ledgered as an add with direction.)
+#
+# git_sha (PR-branch HEAD): 678f86b9a91fc3cdf08edc0df192b4843d48472e
+# Source: the per-class content-column diff in 23b-lane-diff.txt (OLD gateway lane / tenant A  vs
+#   NEW in-process lane / tenant B), diffed on {name,type,sub_type,status,app_definition_id,version}.
+#   Tenant-uuid segments normalized out (per-tenant scope is by design, not a divergence).
+################################################################
+
+METHOD
+  For each server shape, the identity+version minted by the OLD lane (tenant A) is compared against the
+  NEW lane (tenant B) on content columns only, after normalizing the `local:<uuid>:` tenant segment
+  (which legitimately differs per tenant). A DIVERGENCE is any residual difference in
+  name / type / sub_type / status / identity-after-uuid / version. Direction is stated as
+  OLD-only (old lane wrote, new lane did not — a NEW-LANE LOSS, which would be a FAIL) or
+  NEW-only (new lane wrote, old lane did not — a ledgerable ADD).
+
+LEDGER (per server, normalized identity | version | verdict)
+  weather/main.py  local:*:weather/main.py | v1 25ba85bf…860fff73, v2 64802d94…68c663e5 | CONVERGED
+  weather/main.ts  local:*:weather/main.ts | 922fdbc4…6fa25aab                           | CONVERGED
+  filemcp.js       local:*:filemcp.js      | 5a0881bb…242b09c5                           | CONVERGED
+  server.py (uv)   local:*:server.py       | unknown                                     | CONVERGED
+  poetry (manager) poetry::ec21b2798e01bf08c30c2cf83db838bd | unknown                    | CONVERGED (byte-identical, no uuid)
+  everything (npx) @modelcontextprotocol/server-everything  | 2026.8.31                  | CONVERGED (byte-identical, package lane)
+  bare node        (no identity)           | (not written)                               | CONVERGED-SKIP (both lanes skip; guard)
+  Claude Code host endpoint_claude-code (DesktopAgent) | —                               | CONVERGED
+
+DIVERGENCES
+  OLD-only (new-lane LOSS = FAIL):   NONE.  Every identity+version the old lane wrote, the new lane also
+                                     wrote (modulo the by-design tenant segment). No server the old lane
+                                     captured is missing from the new lane. => the guard "the NEW lane
+                                     never loses anything the OLD lane writes" HOLDS.
+  NEW-only (ledgerable ADD):         NONE.  The new lane wrote no identity the old lane did not also write.
+  IDENTITY-STRING mismatch:          NONE (after tenant-segment normalization).
+  VERSION mismatch:                  NONE. Both lanes carry v1 25ba85bf…860fff73 and v2 64802d94…68c663e5
+                                     for weather/main.py; all other versions match exactly.
+  BARE-LAUNCHER mint (either lane):  NONE. Neither lane minted a bare-interpreter identity (no
+                                     node::/python::/python3::/bun::/npx::/uv:: row in either schema).
+
+TOTAL DIVERGENCES: 0.
+
+################################################################
+# The two lanes converge perfectly. There is nothing to ledger as a divergence: no new-lane loss (which
+# would fail the run), no new-lane-only add, no identity/version mismatch, no bare-launcher mint. The one
+# permitted, expected difference — the per-tenant `local:<uuid>:` scope segment — is normalized out as
+# by-design and is NOT a divergence. This is the intended end-state of the fix: one identity per server,
+# identical across both ingestion lanes.
+################################################################

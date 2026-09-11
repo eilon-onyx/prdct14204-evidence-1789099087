@@ -1,0 +1,15 @@
+### at5 migration DRY_RUN — plans the interpreter-fork fold (forks_planned>0)
+# captured: 2026-09-10T22:50:31Z  git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# entrypoint: scripts/start_connector_mcp_asset_merge.py  DRY_RUN=true TENANT_SCHEMAS=onyx_security
+# ---- workflow result ----
+2026-09-10 22:50:35,716 - __main__ - INFO - === DRY RUN (writes nothing): connector MCP asset merge over onyx_security ===
+2026-09-10 22:50:35,730 - __main__ - INFO - Started connector MCP asset merge workflow id=connector-mcp-asset-merge-dry-run-onyx_security run_id=01a08d84-0948-7ce0-8019-5815bafa282a dry_run=True scope=['onyx_security']
+2026-09-10 22:50:35,730 - __main__ - INFO - DRY RUN: this run writes nothing. Read forks_planned and rekeys_planned -- assets_merged and assets_rekeyed are 0 on a dry run by design.
+2026-09-10 22:50:36,382 - __main__ - INFO - Merge complete: dry_run=True tenants_processed=1 forks_planned=1 assets_merged=0 rekeys_planned=0 assets_rekeyed=0 unresolvable=0 policy_scopes_rekeyed=0 session_rows_repointed=0 failed=[] blocked_by_preflight=[]
+=== pairing proof (cache bridge links legacy fork -> converged identity) ===
+SET
+ legacy_asset_id |        legacy_name         | legacy_hash  |                 bridge_converged_identity                  | converged_asset_id |           converged_name           
+-----------------+----------------------------+--------------+------------------------------------------------------------+--------------------+------------------------------------
+              31 | Local MCP Server (python3) | 53219f3a4565 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py |                 82 | Local MCP Server (weather/main.py)
+(1 row)
+

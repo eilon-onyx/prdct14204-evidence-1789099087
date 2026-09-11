@@ -1,0 +1,48 @@
+commit 578b9e1af3f3107cb42afb3644334f8100773f08
+Thread file content hash through the gateway extractor
+
+
+ .../ingestion/gateway_extract.py                   |  7 +++++++
+ .../ingestion/test_gateway_extract.py              | 22 ++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+commit 578b9e1af3f3107cb42afb3644334f8100773f08
+Author: default <eilon@onyx.security>
+Date:   Thu Sep 10 21:12:08 2026 +0000
+
+    Thread file content hash through the gateway extractor
+    
+    An interpreter-launched local MCP server mirrored by the gateway carries the
+    script's content digest under metadata.fileContentHash. The gateway extractor
+    never read it, so the shared writer derived version=unknown and forked a second
+    asset row instead of converging on the scanner row for the identical launch.
+    
+    Read fileContentHash into McpServerInput.file_content_hash exactly as the
+    scanner extractor does, so both lanes feed the same shared
+    resolve_mcp_local_version and compose the same content-digest version. The
+    name-based app-definition id (and its guard mirror) is unaffected.
+
+diff --git a/backend_python/src/endpoint_asset_ingestion/ingestion/gateway_extract.py b/backend_python/src/endpoint_asset_ingestion/ingestion/gateway_extract.py
+index 87ad4ac213..a707ca9e0e 100644
+--- a/backend_python/src/endpoint_asset_ingestion/ingestion/gateway_extract.py
++++ b/backend_python/src/endpoint_asset_ingestion/ingestion/gateway_extract.py
+@@ -28,6 +28,7 @@ from dataclasses import dataclass, field
+ from typing import Any
+ 
+ from common.services.mcp_connector_catalog import CLAUDE_CONNECTOR_ORIGIN
++from common.services.mcp_identity import normalize_file_content_hash
+ from common.services.mcp_secret_redaction import redact_fields
+ from common_core.logger import get_logger
+ from common_db.models.asset_source import AssetSourceType
+@@ -407,6 +408,12 @@ def _convert_session(session_id: str, payloads: list[dict[str, Any]], s3_key: st
+         web_connector_name=web_connector_name,
+         docker_image_name=docker_image_name,
+         docker_image_digests=docker_image_digests,
++        # The script's content digest, mirrored by the gateway under `metadata.fileContentHash`. The
++        # scanner extractor reads the same field; both feed it to the shared writer's
++        # `resolve_mcp_local_version`, which turns it into the FILE lane's content-digest version. Drop
++        # it and an interpreter-launched local server forks a second `::unknown` asset row on this lane
++        # instead of converging on the scanner's row for the identical launch.
++        file_content_hash=normalize_file_content_hash(_str_or_none(metadata.get("fileContentHash"))),
+         email=_str_or_none(metadata.get("email")),
+         device_name=_str_or_none(metadata.get("deviceName")),
+         platform=_str_or_none(metadata.get("devicePlatform")),

@@ -1,0 +1,59 @@
+################################################################
+# 23d-tenantB-zero-workflows.txt  (AT8 — proof the NEW-lane tenant B was NEVER touched by the OLD lane,
+#   and the Window-A blackout fence held: only tenant A's objects were consumed by the collector while
+#   the new lane was armed-OFF for tenant A.)
+#
+# git_sha (PR-branch HEAD): 678f86b9a91fc3cdf08edc0df192b4843d48472e
+# Captured live from Temporal (namespace default, onyx-temporal-frontend:7233) + the new-lane pod log.
+# Tenant B uuid: b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7   schema at8_new_lane_b
+# Tenant A uuid: 77e26c26-3612-407c-ad7b-3895635d7e74   schema at8_old_lane_a
+################################################################
+
+ASSERTION 1 — ZERO ScannerTenantWorkflow (and zero child) for tenant B. The OLD lane never ran on B.
+  temporal workflow list --query
+    "WorkflowId BETWEEN 'scanner-tenant-b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7'
+                   AND 'scanner-tenant-b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7~'"
+  RESULT: (empty — zero rows).
+  Contrast tenant A over the SAME query window: three ScannerTenantWorkflow completions (23c). Tenant B:
+  none. The gateway/Temporal lane produced nothing for B; B's rows in 23b came ONLY from the new
+  in-process lane.
+
+WHY B HAS ZERO — the two windows were disjoint and fenced:
+  WINDOW A  2026-09-11T03:18:49Z … 03:26:04Z
+      - new lane armed OFF for tenant A (ONYX__FEATURE_FLAGS__SERVICE_IDENTITY=agent-prdct14204 on the
+        endpoint-asset-ingestion pod; LD rule ba82c241-… routes tenant A's objects to skipped_flag_off)
+      - scanner-collector-schedule UNPAUSED -> old lane consumes tenant A via S3 LIST.
+      - tenant A scanned through Kong in this window.
+  WINDOW B  starts 2026-09-11T03:26:51Z
+      - scanner-collector-schedule PAUSED (verified: schedule describe -> Paused=true, Notes "at8 window
+        A close"); SERVICE_IDENTITY env removed -> new lane ON.
+      - tenant B scanned through Kong in this window -> handled in-process by the new lane.
+  The last collector fire was scanner-collector-schedule-execution-2026-09-11T03:26:00Z; tenant B's scan
+  began 03:26:51Z — 51 seconds LATER and after the schedule was paused. No collector execution ever
+  LISTed tenant B's S3 prefix, so no ScannerTenantWorkflow for B could exist. This is the mechanism, and
+  the empty list above is the result.
+
+ASSERTION 2 — the Window-A blackout fence held: during Window A the new lane consumed ONLY tenant A's
+  objects, and it consumed them as skipped_flag_off (declined, body never fetched) — it did not write
+  them, leaving them to the old lane. New-lane pod log during Window A (winA-newlane-skiplog.txt):
+    03:19:29 outcome=skipped_flag_off  tenant_uuid=77e26c26-…  (tenant A object, correctly DECLINED)
+             s3_key=tenant=77e26c26-…/source=mcp-scanner/date=2026-09-11/…log
+    03:19:29 skipping record: wrong source for this lane   source=endpoint-logs   (tenant A, non-scanner)
+    03:20:09 skipping record: unknown tenant   temporal-sidecar/scanner-inventory/…/77e26c26-…  (sidecar)
+    03:20:09 skipping record: unknown tenant   …77e26c26-…/…/0.resolved.json
+    03:20:14 skipping record: unknown tenant   posture_check/tenant/6/…                          (tenant A id 6)
+  EVERY tenant-scoped line in the Window-A new-lane log carries tenant A's uuid (77e26c26-…) or tenant
+  A's numeric id (6). NOT ONE line carries tenant B's uuid b8c9a214-… . The fence held: the new lane
+  saw only tenant A traffic in Window A, declined it (skipped_flag_off), and tenant B's objects never
+  entered Window A at all.
+
+ASSERTION 3 — no cross-tenant bleed in the identity strings. Tenant B's assets (23b, snap-B-*.tsv) carry
+  ONLY `local:b8c9a214-…:` scopes; tenant A's carry ONLY `local:77e26c26-…:`. Neither tenant's rows
+  reference the other's uuid. The per-tenant identity scope is intact on both lanes.
+
+################################################################
+# CONCLUSION: tenant B was produced entirely by the NEW lane — zero ScannerTenantWorkflow / zero old-lane
+# activity for B — and the Window-A blackout fence held (new lane saw only tenant A in Window A and
+# declined it as skipped_flag_off). The two lanes were exercised on disjoint tenants in disjoint,
+# correctly-fenced windows. No new-lane loss, no cross-lane bleed.
+################################################################

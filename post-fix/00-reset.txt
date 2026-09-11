@@ -1,0 +1,34 @@
+SET
+== PRE-SCAN CLEANUP: remove dev-iteration pollution row (asset id 80, app_definition_id local:...:poetry) ==
+== This row was minted only by an INTERMEDIATE engineer dev image (args-forwarding commit 8164798527 WITHOUT the manager-decline commit 8680941efa). ==
+== It never occurs on the real deploy path base->fix (base mints poetry::serial; fix keeps poetry::serial; local:poetry is never produced). Removing it so the post-fix read-back reflects the real final image only. ==
+-- target row before delete --
+ id |                 app_definition_id                 |                     unique_identifier                      | is_deleted 
+----+---------------------------------------------------+------------------------------------------------------------+------------
+ 80 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:poetry | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:poetry::unknown | f
+(1 row)
+
+BEGIN
+DELETE 1
+DELETE 1
+DELETE 1
+DELETE 0
+DELETE 0
+DELETE 1
+DELETE 1
+DELETE 1
+DELETE 1
+DELETE 1
+COMMIT
+-- confirm gone --
+ remaining_local_poetry 
+------------------------
+                      0
+(1 row)
+
+-- surviving authentic base poetry (device-scoped) --
+ id |            app_definition_id             |                 unique_identifier                 | is_deleted 
+----+------------------------------------------+---------------------------------------------------+------------
+ 29 | poetry::ec21b2798e01bf08c30c2cf83db838bd | poetry::ec21b2798e01bf08c30c2cf83db838bd::unknown | f
+(1 row)
+

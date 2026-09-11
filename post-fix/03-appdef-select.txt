@@ -1,0 +1,44 @@
+################################################################
+# 03-appdef-select.txt  (AT1 — post-fix app_definitions guard)
+# Source: real onyx-scanner scan_run 3259d973-7397-4a91-a333-487f74c5a9cc (final image e6a46a3e36)
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-10T23:33Z
+#
+# GUARD (from test_plan.json): the shared public.app_definitions catalog must gain
+#   ONLY converged file-keyed identities for interpreter-launched local servers, and
+#   NEVER a new bare-interpreter local: identity (local:<tenant>:python3, :node, :uv, …).
+#   public.app_definitions is shared across tenants and must never be re-keyed or deleted.
+################################################################
+
+===== (A) converged file-keyed local: identities present (this tenant) =====
+-- SELECT id, app_id, name FROM public.app_definitions WHERE app_id LIKE 'local:61750f27%' ORDER BY app_id;
+ id  |                           app_id                           |                name
+-----+------------------------------------------------------------+------------------------------------
+ 583 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js      | Local MCP Server (filemcp.js)
+ 597 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py       | Local MCP Server (server.py)
+ 594 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | Local MCP Server (weather/main.py)
+ 596 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts | Local MCP Server (weather/main.ts)
+(4 rows)
+  => every interpreter-launched server's catalog entry is keyed by the SCRIPT, and its
+     display name is the script — never the interpreter.
+
+===== (B) NEGATIVE GUARD: bare-interpreter local: identities (MUST be ZERO rows) =====
+-- SELECT id, app_id FROM public.app_definitions WHERE app_id IN (
+--   'local:<tenant>:python3','local:<tenant>:python','local:<tenant>:node',
+--   'local:<tenant>:bun','local:<tenant>:uv','local:<tenant>:poetry','local:<tenant>:env');
+ id | app_id
+----+--------
+(0 rows)
+  => ZERO. The catalog holds NO local:<tenant>:<interpreter> identity. A bare interpreter is
+     never promoted to a tenant-scoped local identity; the file-less launchers fall back to the
+     device-scoped {name}::{serial} form on the ASSET (see 02 rows 28/29), which is not a
+     public.app_definitions local: identity.
+
+===== (C) catalog integrity: total app_definitions unchanged by the re-scan =====
+-- SELECT count(*) FROM public.app_definitions;
+ count
+-------
+   540
+(1 row)
+  => 540, identical to the pre-rescan count. The idempotent re-scan on the final image added no
+     new catalog rows and re-keyed/deleted none. public.app_definitions is never hand-touched.

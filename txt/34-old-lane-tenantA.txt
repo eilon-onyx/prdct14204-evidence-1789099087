@@ -1,0 +1,34 @@
+=== 34-old-lane-tenantA.txt — OLD scanner lane (scheduled ScannerCollectorWorkflow) driven for FRESH tenant A through Kong (captured 2026-09-11T00:57:36Z) ===
+Deployed code at drive time: ~/onyx = factory-eval-v32/PRDCT-14204 @ e6a46a3e367a2d91ca0693e15d5316d3818627c3 (engineer branch build — this file proves LANE DRIVABILITY, not at8's diff)
+
+Window setup: deploy/endpoint-asset-ingestion had ONYX__FEATURE_FLAGS__SERVICE_IDENTITY=agent-prdct14204; LD dev flag endpoint-asset-ingestion rule ba82c241-6ac3-45fb-8c88-179c0321e679 (service_identity=agent-prdct14204 -> False, added via ld-router) => NEW lane skips; scanner-collector-schedule UNPAUSED for the window.
+
+--- real scan through Kong key-auth (lab machine ip-172-31-90-152, tenant A key zv6268...) ---
+2026-09-11T00:54:37.341065561Z	DEBUG	Scan run starting	{"scan_run_id": "47cd2a1a-5744-44ae-b6d6-0ed85c826ae4", "timestamp": "2026-09-11T00:54:37.340323322Z", "full_scan": true, "dry_run": false, "project_walk_timeout": "7m0s", "session_lookback_window": "720h0m0s"}
+(full transcript: /tmp/scanA.txt on the box)
+2026-09-11T00:54:42.00456571Z	INFO	Scan completed successfully
+
+--- S3 object (tenant-prefixed by Kong consumer ingestion@a7ace9e2...) ---
+tenant=a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf/source=mcp-scanner/date=2026-09-11/1789088091-dd88025c-6e55-41d9-adba-bccc995748e4.log
+
+--- OLD-lane Temporal child (per-tenant fanout picked up EXACTLY tenant A) ---
+   Status                                 WorkflowId                                       Type             StartTime  
+  Completed  scanner-tenant-a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf-20260911T005500Z  ScannerTenantWorkflow  2 minutes ago
+
+--- NEW lane skipped A's exact object (per-tenant isolation guard) ---
+(quoted from the endpoint-asset-ingestion pod live at 00:55Z; that pod was replaced when the SERVICE_IDENTITY env was removed, so it is not re-greppable from the current pod)
+2026-09-11T00:54:58.701966Z [info     ] asset_ingestion_record_handled [endpoint_asset_ingestion.consumer.message_handler] filename=message_handler.py func_name=_handle_record lineno=171 object_age_seconds=6.742946 outcome=skipped_flag_off s3_key='tenant=a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf/source=mcp-scanner/date=2026-09-11/1789088091-dd88025c-6e55-41d9-adba-bccc995748e4.log' span_id=0f9ba4673cb8d984 tenant_uuid=a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf trace_flags=01 trace_id=1961824ac74954e80ea52cacea5ed465
+
+--- rows written by the OLD lane into prdct14204_old.assets ---
+ id |                     app_definition_id                      |                                                      unique_identifier                                                       |                name                
+----+------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------+------------------------------------
+  1 | endpoint_claude-code                                       | endpoint_claude-code::ec21b2798e01bf08c30c2cf83db838bd                                                                       | Claude Code (ubuntu)
+  3 | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:weather/main.py | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:weather/main.py::unknown                                                          | Local MCP Server (weather/main.py)
+  6 | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:weather/main.ts | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:weather/main.ts::922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab | Local MCP Server (weather/main.ts)
+  7 | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:filemcp.js      | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:filemcp.js::5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5      | Local MCP Server (filemcp.js)
+  8 | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:server.py       | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:server.py::unknown                                                                | Local MCP Server (server.py)
+  9 | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:poetry install  | local:a7ace9e2-c692-4adc-bc8f-96e42b3e2dcf:poetry install::unknown                                                           | Local MCP Server (poetry install)
+ 11 | node::ec21b2798e01bf08c30c2cf83db838bd                     | node::ec21b2798e01bf08c30c2cf83db838bd::unknown                                                                              | Local MCP Server (node)
+(7 rows)
+
+Window teardown: schedule re-paused; SERVICE_IDENTITY env removed.

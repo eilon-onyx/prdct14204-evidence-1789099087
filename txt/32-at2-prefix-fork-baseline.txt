@@ -1,0 +1,12 @@
+# at2 PRE-FIX baseline: gateway lane forks a ::unknown version sibling
+captured_at: 2026-09-10T21:15Z  (lanes were on image local-fix-6fa2fd33d3, BEFORE the gateway-hash fix)
+tenant: 61750f27-8fbd-42a4-80cf-4191cfb2371a
+NOTE: id 82 (scanner, concrete digest) and id 141 (gateway, ::unknown) share ONE app_definition_id, forked on version.
+
+SET
+ id  |                     app_definition_id                      |                           version_seg                            | is_deleted | source_type 
+-----+------------------------------------------------------------+------------------------------------------------------------------+------------+-------------
+  82 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350 | f          | File
+ 141 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | unknown                                                          | f          | File
+(2 rows)
+

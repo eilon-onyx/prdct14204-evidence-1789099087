@@ -1,0 +1,17 @@
+== at3 POST-FIX: the npx package spec stays NPM, never a FILE/local: or bare-'npx' identity (scan_run 8bf723d7) ==
+
+-- the npx entry's row --
+SET
+ id |            app_definition_id            |                 unique_identifier                  |  version  | source_type |         name          
+----+-----------------------------------------+----------------------------------------------------+-----------+-------------+-----------------------
+ 81 | @modelcontextprotocol/server-everything | @modelcontextprotocol/server-everything::2026.8.31 | 2026.8.31 | Npm         | Everything MCP Server
+(1 row)
+
+-- GUARD: no local: FILE identity and no bare 'npx' identity minted for the package entry --
+SET
+ npx_or_local_server_everything 
+--------------------------------
+                              0
+(1 row)
+
+  (expected 0: source_type=Npm, identity = the package spec, version follows the package lane = 2026.8.31)

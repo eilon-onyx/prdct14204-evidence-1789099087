@@ -1,0 +1,150 @@
+################################################################
+# 23b-lane-diff.txt  (AT8 — the two-lane convergence proof: OLD gateway lane vs NEW in-process lane,
+#   side-by-side, diffed on CONTENT columns per settlement class. Two FRESH tenants, one each lane.)
+#
+# test_plan.json at8 flow: "Run BOTH lanes; each server settles to ONE identity+version per lane;
+#   the NEW lane never loses anything the OLD lane writes; neither lane mints a bare-launcher identity."
+#
+# git_sha (PR-branch HEAD, fix deployed to all three pods): 678f86b9a91fc3cdf08edc0df192b4843d48472e
+# Captured: 2026-09-11 (Window A old-lane tenant A; Window B new-lane tenant B).
+#
+# Lanes & tenants (each lane driven on its OWN fresh tenant — never both lanes into one tenant):
+#   OLD / gateway lane   -> tenant A  uuid 77e26c26-3612-407c-ad7b-3895635d7e74  schema at8_old_lane_a
+#        path: scanner-collector-schedule (1m) -> ScannerCollectorWorkflow (Go) -> ScannerTenantWorkflow
+#              -> Go CreateScannerInventory -> DesktopAgentCreator -> McpAssetCreationWorkflow (Temporal)
+#   NEW / in-process lane-> tenant B  uuid b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7  schema at8_new_lane_b
+#        path: Kong /mcp-scanner -> Vector -> S3 -> SQS -> endpoint_asset_ingestion mcp_writer (off Temporal)
+#
+# Every row below rode the REAL front door (onyx-scanner scan against Kong with the tenant's own
+# key-auth apikey). No hand-built payloads, no synthetic ScannerTenantWorkflow input, no explicit-S3Keys
+# replay. Content columns diffed: name, type, sub_type, status, app_definition_id (the identity string),
+# version. Row ids and timestamps are NEVER diffed (at8 forbids it).
+#
+# EXPECTED (and observed) convergence rule: the two lanes mint the IDENTICAL identity + version for
+# every server, modulo exactly one legitimate difference — the tenant UUID embedded in a `local:<uuid>:`
+# scope (identity is per-tenant by design). Device-scoped identities (poetry::<serial>) and
+# package-lane identities (@scope/pkg) are BYTE-IDENTICAL across lanes because they carry no tenant uuid.
+################################################################
+
+The lab endpoint (device serial ec21b2798e01bf08c30c2cf83db838bd) presents SEVEN MCP launch shapes
+through one real scan, chosen to exercise every identity branch the ticket touches:
+  1. weather-py     command="python3" args=["/srv/weather/main.py"]      interpreter + script
+  2. weather-py-u   command="python"  args=["-u","/srv/weather/main.py"] SAME script, flag before it
+  3. weather-ts     command="bun"     args=["/srv/weather/main.ts"]      different interpreter, .ts script
+  4. xserver        command="uv" args=["run","--directory","/x","server.py"]  launcher w/ subcommand+opts
+  5. filemcp        command="node"    args=["/root/filemcp.js"]          node + script
+  6. poetry-env     command="poetry"  args=["install"]                   MANAGER, nothing resolvable -> device scope
+  7. bare-node      command="node"    args=[]                            BARE launcher, no script -> SKIP (guard)
+  8. everything     command="npx" args=["-y","@modelcontextprotocol/server-everything"]  PACKAGE spec -> package lane
+
+--------------------------------------------------------------------------------------------------
+CLASS 1 — WRITTEN-NEW   (first scan of each fresh tenant; WriteOutcome "created")
+--------------------------------------------------------------------------------------------------
+OLD lane / tenant A  (snap-A-v1-writtennew.tsv, 7 rows: 6 MCP + 1 DesktopAgent):
+  name                              app_definition_id                                                   version
+  Everything MCP Server             @modelcontextprotocol/server-everything                             2026.8.31
+  Local MCP Server (filemcp.js)     local:77e26c26-3612-407c-ad7b-3895635d7e74:filemcp.js               5a0881bb…242b09c5
+  Local MCP Server (server.py)      local:77e26c26-3612-407c-ad7b-3895635d7e74:server.py                unknown
+  Local MCP Server (weather/main.py)local:77e26c26-3612-407c-ad7b-3895635d7e74:weather/main.py          25ba85bf…860fff73
+  Local MCP Server (weather/main.ts)local:77e26c26-3612-407c-ad7b-3895635d7e74:weather/main.ts          922fdbc4…6fa25aab
+  Local MCP Server (poetry)         poetry::ec21b2798e01bf08c30c2cf83db838bd                            unknown
+  Claude Code (ubuntu)              endpoint_claude-code  (AssetTypeDesktopAgent — the host agent)
+
+NEW lane / tenant B  (snap-B-v1-writtennew.tsv, 7 rows: 6 MCP + 1 DesktopAgent):
+  Everything MCP Server             @modelcontextprotocol/server-everything                             2026.8.31
+  Local MCP Server (filemcp.js)     local:b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7:filemcp.js               5a0881bb…242b09c5
+  Local MCP Server (server.py)      local:b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7:server.py                unknown
+  Local MCP Server (weather/main.py)local:b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7:weather/main.py          25ba85bf…860fff73
+  Local MCP Server (weather/main.ts)local:b8c9a214-ccaf-4a7f-9d37-9ce6b4d4f7a7:weather/main.ts          922fdbc4…6fa25aab
+  Local MCP Server (poetry)         poetry::ec21b2798e01bf08c30c2cf83db838bd                            unknown
+  Claude Code (ubuntu)              endpoint_claude-code
+
+DIFF (content columns), OLD vs NEW:
+  * name/type/sub_type/status/version  — IDENTICAL for every row.
+  * app_definition_id                  — IDENTICAL except the `local:<uuid>:` tenant segment
+        (77e26c26… on A, b8c9a214… on B). The FILE segment after the uuid is byte-identical:
+        filemcp.js == filemcp.js, server.py == server.py, weather/main.py == weather/main.py,
+        weather/main.ts == weather/main.ts. This is the ticket's core write: identity is the FILE the
+        interpreter runs, not the interpreter.
+  * poetry::<serial> and @modelcontextprotocol/server-everything — BYTE-IDENTICAL (no tenant segment).
+
+THE FIX'S CENTRAL PROOF — weather-py + weather-py-u COLLAPSE TO ONE ROW ON BOTH LANES:
+  `python3 /srv/weather/main.py`  and  `python -u /srv/weather/main.py`  are two DIFFERENT interpreter
+  invocations of the SAME script. Pre-fix they would have keyed on the interpreter (python3::serial vs
+  python::serial — two junk rows, and neither the real server). Post-fix BOTH lanes mint exactly ONE
+  `local:<tenant>:weather/main.py`. There is exactly one weather/main.py row per tenant in both snapshots
+  above — the `-u` flag and the python3-vs-python interpreter name are correctly ignored.
+
+--------------------------------------------------------------------------------------------------
+CLASS 2/6a — WRITTEN-UPDATE / VERSION-SUPERSEDE  (re-scan after editing weather/main.py content)
+--------------------------------------------------------------------------------------------------
+The weather/main.py file content was changed and the SAME front-door scan re-run on each tenant.
+A changed content digest is written as a NEW asset row SHARING the app_definition_id; the prior-digest
+row goes stale (documented end-state — nothing retires it on this path). Same identity, new version.
+
+OLD lane / tenant A  (snap-A-v2-version.tsv, 8 rows — weather/main.py now carries TWO version rows):
+  Local MCP Server (weather/main.py) local:77e26c26-…:weather/main.py  25ba85bf…860fff73   (v1, now stale)
+  Local MCP Server (weather/main.py) local:77e26c26-…:weather/main.py  64802d94…68c663e5   (v2, current)
+NEW lane / tenant B  (snap-B-v2-version.tsv, 8 rows — same):
+  Local MCP Server (weather/main.py) local:b8c9a214-…:weather/main.py  64802d94…68c663e5   (v2)
+  Local MCP Server (weather/main.py) local:b8c9a214-…:weather/main.py  25ba85bf…860fff73   (v1, stale)
+
+DIFF: the version digests converge EXACTLY across lanes — 25ba85bf…860fff73 (v1) and 64802d94…68c663e5
+(v2) appear on BOTH lanes. The identity string is unchanged by the content edit (only the tenant segment
+differs). Version is a content digest of the FILE, identical byte-for-byte across lanes. No lane invented
+a third digest; no lane failed to supersede. (Both tenants' current MCP-asset count = 7, i.e. 6 servers
+with weather/main.py holding 2 version rows — verified live at capture close.)
+
+--------------------------------------------------------------------------------------------------
+CLASS 3 — UNCHANGED / DEDUPED  (replay the identical scan; no new/updated row)
+--------------------------------------------------------------------------------------------------
+The identical v1 payload was re-ingested on each tenant through the front door.
+OLD lane / tenant A  (snap-A-v1-dedup.tsv)  == snap-A-v1-writtennew.tsv  BYTE-FOR-BYTE (7 rows, no delta).
+NEW lane / tenant B  (snap-B-v1-dedup.tsv)  == snap-B-v1-writtennew.tsv  BYTE-FOR-BYTE (7 rows, no delta).
+DIFF: none in either lane — the re-ingestion settled unchanged (content-hash skip gate on the new lane;
+idempotent upsert / matched on the old lane). No lane double-wrote on replay.
+
+--------------------------------------------------------------------------------------------------
+CLASS 4 — SKIPPED (bare-launcher guard)  — the at8 GUARD: "neither lane mints a bare-launcher identity"
+--------------------------------------------------------------------------------------------------
+Shape 7 `node` with args=[] (bare interpreter, no script) resolves to NO identity and is DELIBERATELY
+NOT WRITTEN on either lane.
+OLD lane / tenant A: 0 rows whose app_definition_id is `node::<serial>` or any bare-interpreter stem.
+NEW lane / tenant B: 0 rows whose app_definition_id is `node::<serial>` or any bare-interpreter stem.
+  (Verified: no `node::`, `python::`, `python3::`, `bun::`, `npx::`, `uv::` identity in EITHER schema;
+   the only device-scoped row is the legitimate manager poetry::<serial>.)
+DIFF: none — both lanes SKIP the bare launcher. Neither minted a bare-interpreter asset. Guard HELD on
+both lanes. (See also 07b-gateway-fileless-guard.txt and post-fix/10-no-node-junk.png,
+post-fix/11-skip-selects.txt / 12-skip-log.txt for the guard's UI + log evidence.)
+
+--------------------------------------------------------------------------------------------------
+CLASS 5 — PARKED / DLQ (poison)  — demonstrated on the NEW lane
+--------------------------------------------------------------------------------------------------
+A malformed scan record (unparseable codingAgent object) was POSTed through Kong with tenant B's key.
+The new lane parked it observably and wrote ZERO rows:
+  extract.py:808          "scan record has no parseable codingAgent object"
+  message_handler.py:120  "poison object — unprocessable, dead-lettering"  (poison_reason unparseable)
+  sqs.py:355              "Moved message to DLQ"  (message_id 364dcfba-…)
+  tenant B MCP-asset count UNCHANGED at 8 across the poison (batch unharmed; poison wrote no row).
+OLD lane: parked/DLQ is a pre-identity, fix-independent settlement class of the SQS consumer; it is
+LEDGERED not-run on the old lane in 24b-closure.txt with reason (the old lane consumes via S3 LIST inside
+ScannerTenantWorkflow, not the SQS poison path — a poison object there is a Temporal activity failure,
+a different mechanism outside this ticket's identity scope). The class itself is demonstrated (new lane).
+
+--------------------------------------------------------------------------------------------------
+CLASS 6b — ORPHAN RETIRE / LIFECYCLE-STALE
+--------------------------------------------------------------------------------------------------
+6a version-supersede stale row: demonstrated above (weather/main.py v1 goes stale under v2) on BOTH lanes.
+6b `{app_definition}::unknown` orphan retire: the new lane's object-end reconcile soft-deletes a
+connectionless `::unknown` sibling once a concrete version re-keys; ledgered in 24b-closure.txt — no
+registry-FAILURE orphan arose in this corpus (every server resolved a concrete version or a documented
+`unknown`), so there was no orphan to retire in this run. Not a divergence: neither lane produced a live
+`::unknown` duplicate.
+
+################################################################
+# BOTTOM LINE: textbook cross-lane convergence. For every server the OLD gateway lane and the NEW
+# in-process lane mint the IDENTICAL identity and version, the only difference being the per-tenant
+# `local:<uuid>:` segment (by design). weather-py + weather-py-u collapse to ONE weather/main.py row on
+# both lanes (the fix's core). The bare launcher is SKIPPED on both. The NEW lane loses NOTHING the OLD
+# lane writes. Divergence count: see 24-divergence-ledger.txt (zero identity/version divergences).
+################################################################

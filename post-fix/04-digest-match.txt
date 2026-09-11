@@ -1,0 +1,50 @@
+################################################################
+# 04-digest-match.txt  (AT1 — post-fix version fidelity)
+# Source: real onyx-scanner scan_run 3259d973-7397-4a91-a333-487f74c5a9cc (final image e6a46a3e36)
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-10T23:34Z
+#
+# CLAIM: for interpreter-launched local servers, assets.version is the CONTENT digest of
+#   the file the interpreter runs (the scanner's normalized fileContentHash) — never the
+#   interpreter and never 'unknown' when the file was readable. Identity is by file NAME;
+#   the content digest is the VERSION only.
+################################################################
+
+-- (1) raw sha256sum of the real files on the lab machine (pre-normalization) --
+1d28e366c52bb2a11c530f5447c9f846901ee15098a1254edfda9cf87e2998f0  /srv/weather/main.py
+8f7a5f2cc3712eca4179bdbf8306a4047911f66d9b9dcc41ab9d03dce1fe66b0  /srv/weather/main.ts
+fb626e9d19a00f032e14f7bc76c291ecc1b09045e5012c08eb9aece2cf179fc2  /root/filemcp.js
+1759420c6a7c0f590e312967f9448f548246cde6581260486cfbedfa6e3f2c67  /x/server.py
+
+-- (2) NORMALIZED fileContentHash the scanner shipped in THIS run --
+--     (from the scanner mcpServers parity line in 01-scan-upload-status.txt) --
+   weather/main.py fileContentHash = 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+   filemcp.js      fileContentHash = 5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5
+   weather/main.ts fileContentHash = 922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab
+
+-- (3) assets.version stored by the lane for each converged file identity --
+                     app_definition_id                      |                             version
+------------------------------------------------------------+------------------------------------------------------------------
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:filemcp.js      | 5a0881bbe907f1cf8630876286846677ba789d5cf36fe30ec24c1728242b09c5
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:server.py       | unknown
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | 7c1052fc20d886b9f90016c71af4e4792d4f2c0a02b86965e3d77fbaceb7d350
+ local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.ts | 922fdbc4c56b8f7569235f536fa328c498a94c51b409494a071ae6ba6fa25aab
+(4 rows)
+
+-- (4) MATCH: stored assets.version EQUALS the scanner's normalized fileContentHash --
+    weather/main.py : version 7c1052fc… == scanner fileContentHash 7c1052fc…  MATCH
+    weather/main.ts : version 922fdbc4… == scanner fileContentHash 922fdbc4…  MATCH
+    filemcp.js      : version 5a0881bb… == scanner fileContentHash 5a0881bb…  MATCH
+    server.py (uv run --directory /x server.py): version 'unknown'.
+      The file IS readable on the box now (raw sha 1759420c…), but the Go scanner does not
+      resolve a --directory-relative entrypoint ("server.py" relative to --directory /x) to a
+      readable path, so it shipped NO fileContentHash for it. The IDENTITY is still correctly
+      script-named (local:…:server.py) — this ticket's fix. Version fidelity for
+      --directory-relative launches is a PRE-EXISTING scanner-fingerprint limitation, out of this
+      ticket's scope (scanner/internal/scanner/agents/mcp_file_fingerprint.go: "When the executed
+      file can't be resolved or opened, FileContentHash stays empty … there is no 'hash the
+      command line instead' fallback"). Ledgered.
+
+NOTE on normalization: the raw sha256sum (main.py = 1d28e366…) differs from the stored version
+because the platform stores the scanner's NORMALIZED fileContentHash, not a raw byte digest — the
+version column mirrors the scanner payload verbatim.

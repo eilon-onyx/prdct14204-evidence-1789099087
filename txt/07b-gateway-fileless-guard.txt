@@ -1,0 +1,51 @@
+================================================================================
+at2 evidence 07b — file-less gateway entry is SKIPPED (no bare-launcher row minted)
+Captured: 2026-09-10T21:47:55Z
+Driver: a REAL stdio MCP server launched file-less as 'python3 -m main' (cwd /srv/weather)
+        — a bare interpreter running a MODULE, nothing resolvable to a file path.
+Pre-drive DB state (21:43:58Z): max_asset_id=86, live_mcp_assets=34, bare_launcher_app_definitions=1
+================================================================================
+
+### 1) The mirror object the real gateway produced (args=['-m','main'], fileContentHash=None)
+###    A real tool call transited (data.content='sunny, 21C') — this is NOT a mock.
+--------------------------------------------------------------------------------
+=== NEWEST OBJECT 1789076709-5b1cff65-13f9-4c81-b53a-ac8509426b06.log  (2026-09-10T21:45:09+00:00)  4796 bytes ===
+[p0] method=tools/list type=request proxyType=stdio stdio={"args": ["-m", "main"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=None
+[p1] method=tools/call type=request proxyType=stdio stdio={"args": ["-m", "main"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=None
+[p2] method=tools/list type=response proxyType=stdio stdio={"args": ["-m", "main"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=None
+[p3] method=tools/call type=response proxyType=stdio stdio={"args": ["-m", "main"], "command": "python3", "dockerImageName": "", "proxyType": "stdio"} fileContentHash=None
+     data.content~> {"content": [{"text": "sunny, 21C", "type": "text"}]}
+
+### 2) Gateway ingestion-lane log for object 1789076709-5b1cff65-13f9-4c81-b53a-ac8509426b06.log
+###    -> 'skipping MCP server with no identifiable data' — SKIPPED, no Upserted base application.
+--------------------------------------------------------------------------------
+2026-09-10T21:45:09.636948Z [info     ] skipping MCP server with no identifiable data [endpoint_asset_ingestion.ingestion.mcp_writer] args=['-m', 'main'] command=python3 config_entry_name=None filename=mcp_writer.py func
+2026-09-10T21:45:09.637342Z [info     ] ingested scanner object        [endpoint_asset_ingestion.ingestion.object_processor] filename=object_processor.py func_name=process lineno=152 s3_key='tenant=61750f27-8fbd-42a4-80c
+2026-09-10T21:45:09.637503Z [info     ] asset_ingestion_record_handled [endpoint_asset_ingestion.consumer.message_handler] filename=message_handler.py func_name=_handle_record lineno=171 object_age_seconds=0.022013 outco
+
+### 3) DB read-back AFTER the file-less drive: nothing minted, no bare-launcher identity
+--------------------------------------------------------------------------------
+SET
+=== (A) counts UNCHANGED from pre-drive (max_asset_id=86, live=34, bare_appdefs=1) ===
+ max_asset_id | live_mcp_assets 
+--------------+-----------------
+           86 |              34
+(1 row)
+
+ bare_launcher_app_definitions 
+-------------------------------
+                             1
+(1 row)
+
+=== (B) zero assets created at/after the file-less drive (>= 21:43) ===
+ assets_created_by_fileless_drive 
+----------------------------------
+                                0
+(1 row)
+
+=== (C) no python3 identity newly created (the only python3 rows are 14:08 seed) ===
+ id | unique_identifier |          created_at          
+----+-------------------+------------------------------
+ 31 | python3::unknown  | 2026-09-10 14:08:53.70649+00
+(1 row)
+

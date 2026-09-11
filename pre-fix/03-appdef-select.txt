@@ -1,0 +1,11 @@
+== PRE-FIX: public.app_definitions rows minted by the scan (the defect: bare-launcher / interpreter-keyed identities exist; script path nowhere) ==
+                  app_id                  |            name            |       origin       
+------------------------------------------+----------------------------+--------------------
+ bun                                      | bun                        | OriginUnknown
+ node::ec21b2798e01bf08c30c2cf83db838bd   | Local MCP Server (node)    | OriginUnknown
+ poetry::ec21b2798e01bf08c30c2cf83db838bd | Local MCP Server (poetry)  | OriginUnknown
+ python                                   | Python MCP Server          | OriginUnitedStates
+ python3                                  | Local MCP Server (python3) | OriginUnknown
+ uv                                       | uv                         | OriginUnknown
+(6 rows)
+

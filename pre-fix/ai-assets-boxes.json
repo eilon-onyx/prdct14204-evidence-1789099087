@@ -1,0 +1,37 @@
+[
+ {
+  "label": "Local MCP Server (pytho",
+  "x": 104,
+  "y": 312,
+  "width": 2715,
+  "height": 72
+ },
+ {
+  "label": "Bun MCP Server",
+  "x": 104,
+  "y": 384,
+  "width": 2715,
+  "height": 72
+ },
+ {
+  "label": "Python MCP Server",
+  "x": 104,
+  "y": 456,
+  "width": 2715,
+  "height": 72
+ },
+ {
+  "label": "Local MCP Server (node)",
+  "x": 104,
+  "y": 888,
+  "width": 2715,
+  "height": 72
+ },
+ {
+  "label": "Local MCP Server (poetry)",
+  "x": 104,
+  "y": 816,
+  "width": 2715,
+  "height": 72
+ }
+]

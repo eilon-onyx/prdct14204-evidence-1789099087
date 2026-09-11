@@ -1,0 +1,35 @@
+URL after tab: http://localhost:8181/ai-assets?columnFilters=%5B%7B%22id%22%3A%22subType%22%2C%22value%22%3A%5B%22AssetSubTypeMCPServer%22%5D%7D%5D&presetId=%222%22
+TOTAL visible rows: 15
+  row[0]: Local MCP Server (filemcp.js) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[1]: Local MCP Server (server.py) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[2]: Local MCP Server (weather/main.ts) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No acti
+  row[3]: Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Discovered - MCP Gateway +1 L0: Asset 2 Sep 10, 2026 Sep 10, 2026 No activi
+  row[4]: Everything MCP Server MCP NPM 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[5]: Local MCP Server (poetry) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[6]: ClickHouse MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 5 days ago
+  row[7]: Task Master AI MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 8 days ago
+  row[8]: Sentry MCP MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 7 days ago
+  row[9]: Context7 MCP 0.7 MCP Server Discovered - L0: Asset 3 Sep 6, 2026 Sep 10, 2026 9 days ago
+  row[10]: Local MCP Server (python3) MCP PyPI 0.5 MCP Server Discovered - MCP Gateway +1 L0: Asset 1 Sep 10, 2026 Sep 10, 2026 No activity
+  row[11]: Local MCP Server (node) MCP Local File 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[12]: uv MCP Server MCP PyPI 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[13]: Bun MCP Server MCP NPM 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+  row[14]: Python MCP Server MCP PyPI 0.5 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No activity
+ASSERT converged "Local MCP Server (weather/main.py)": rows=1 OK(1)
+ASSERT converged "Local MCP Server (weather/main.ts)": rows=1 OK(1)
+ASSERT converged "Local MCP Server (server.py)": rows=1 OK(1)
+ASSERT converged "Local MCP Server (filemcp.js)": rows=1 OK(1)
+06-combined outlined: ["Local MCP Server (filemcp.js) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 1","Local MCP Server (server.py) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10","Local MCP Server (weather/main.ts) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 ","Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Discovered - MCP Gateway +1 L0: Asset 2 Sep 10, 2026 Se"]
+06a-ai-assets-script-rows.png outlined: ["Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Discovered - MCP Gateway +1 L0: Asset 2 Sep 10, 2026 Se"]
+06b-ai-assets-script-rows.png outlined: ["Local MCP Server (weather/main.ts) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 "]
+06c-ai-assets-script-rows.png outlined: ["Local MCP Server (server.py) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10"]
+06d-ai-assets-script-rows.png outlined: ["Local MCP Server (filemcp.js) MCP Local File 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 1"]
+09 npm package row outlined: ["Everything MCP Server MCP NPM 1.7 MCP Server Discovered - Endpoint Scanner L0: Asset 0 Sep 10, 2026 Sep 10, 2026 No acti"]
+ASSERT 12b: weather/main.py converged rows = 1 OK(exactly one)
+12b outlined: ["Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Discovered - MCP Gateway +1 L0: Asset 2 Sep 10, 2026 Se"]
+ASSERT 13: legacy interpreter row present = 1 ["Local MCP Server (python3) MCP PyPI 0.5 MCP Server Discovered - MCP Gateway +1 L0: Asset 1 Sep 10, 2026 Sep 10, 2026 No activity"]
+13 outlined (legacy amber + converged): ["Local MCP Server (weather/main.py) MCP Local File 1.7 MCP Server Discovered - MCP Gateway +1 L0: Asset 2 Sep 10, 2026 Se","Local MCP Server (python3) MCP PyPI 0.5 MCP Server Discovered - MCP Gateway +1 L0: Asset 1 Sep 10, 2026 Sep 10, 2026 No "]
+07 detail URL: http://localhost:8181/ai-assets/mcp/82?tab=overview
+07 ASSERT detail contains content digest 7c1052fc: OK
+07 ASSERT detail version is NOT 'unknown': OK
+07 digest context: 7c1052fc

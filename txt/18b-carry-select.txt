@@ -1,0 +1,66 @@
+################################################################
+# 18b-carry-select.txt  (AT5)
+# Claim: the operator's enforcement bindings are CARRIED onto the converged
+#        identity exactly ONCE -- not duplicated, not lost. Specifically the
+#        access_control sanction and the asset_ai_firewall_policies junction.
+# Converged identity: asset 82 / app_definition_id 'local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py'
+# Captured (UTC): 2026-09-10T23:08:14Z
+################################################################
+
+===== access_control on the CONVERGED identity: exactly ONE row (the carried sanction) =====
+SET
+                  id                  | asset_id |                     app_definition_id                      |   status   |          created_at           
+--------------------------------------+----------+------------------------------------------------------------+------------+-------------------------------
+ d5bd0856-3385-48d5-8805-6d7286d80d17 |          | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | Sanctioned | 2026-09-10 23:02:02.406891+00
+(1 row)
+
+-- count on converged identity:
+SET
+ converged_access_control_rows 
+-------------------------------
+                             1
+(1 row)
+
+
+===== asset_ai_firewall_policies carried onto the CONVERGED asset: exactly ONE row =====
+SET
+ id | ai_firewall_policy_id | asset_id |                     app_definition_id                      
+----+-----------------------+----------+------------------------------------------------------------
+ 25 |                    19 |          | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py
+(1 row)
+
+-- count on converged asset/identity:
+SET
+ converged_firewall_junction_rows 
+----------------------------------
+                                1
+(1 row)
+
+
+===== FULL picture: both fork and converged rows, to show carry-not-duplicate =====
+-- access_control (fork 'python3' rule left standing by design; converged carries the decision once):
+SET
+                  id                  |                     app_definition_id                      |   status   
+--------------------------------------+------------------------------------------------------------+------------
+ d5bd0856-3385-48d5-8805-6d7286d80d17 | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | Sanctioned
+ a9c61770-1725-477e-a2db-3638cb4d2dea | python3                                                    | Sanctioned
+(2 rows)
+
+-- asset_ai_firewall_policies (junction id 25 repointed from fork 'python3' to converged):
+SET
+ id | ai_firewall_policy_id | asset_id |                     app_definition_id                      
+----+-----------------------+----------+------------------------------------------------------------
+ 25 |                    19 |          | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py
+(1 row)
+
+
+-- INTERPRETATION
+-- * access_control: the operator's Sanctioned decision now resolves on the CONVERGED identity
+--   through exactly ONE row (converged_access_control_rows = 1). The fork's own 'python3' rule
+--   is intentionally left standing (not a duplicate of the carry -- it exists so a stale
+--   package-cache holder still resolving the fork identity keeps reading the operator's block;
+--   see _merge_access_control and evidence 16). The decision was CARRIED (present once on the
+--   converged target), never LOST and never DOUBLE-COUNTED on the converged identity.
+-- * asset_ai_firewall_policies: the junction row (id 25) that bound the guard policy to the
+--   legacy identity now points at the converged asset/identity -- exactly one row, repointed by
+--   the migration's _ASSET_PAIRS deferred sweep, not duplicated.

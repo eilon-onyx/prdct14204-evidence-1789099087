@@ -1,0 +1,76 @@
+################################################################
+# 05-lifecycle-select.txt  (AT1 — lifecycle: delete the file, rescan, read back)
+# test_plan.json at1 flow step 7:
+#   "Lifecycle: delete /srv/weather/main.py on the machine, rescan, read back —
+#    the asset goes stale/deleted, not duplicated."
+# Deployed lane image: localhost:5001/onyx/endpoint-asset-ingestion:local-fix-e6a46a3e36
+# git_sha: e6a46a3e367a2d91ca0693e15d5316d3818627c3
+# Captured (UTC): 2026-09-10T23:36Z
+#
+# CORE CLAIM: identity is derived from the FILE NAME (path-string-resolved), so it
+#   survives the file being deleted — the server does NOT fork to a second identity
+#   and the inventory does NOT gain a duplicate row. The content digest correctly goes
+#   stale ('unknown') because the file is no longer readable.
+################################################################
+
+===== (A) BEFORE — asset 82, live, content-versioned; its agent connection active =====
+ id | name                               | app_definition_id                                          | version   | is_deleted
+ 82 | Local MCP Server (weather/main.py) | local:61750f27-8fbd-42a4-80cf-4191cfb2371a:weather/main.py | 7c1052fc… | f
+ asset_connections: id 44  (agent 23 -> mcp 82)  AgentToMcp  is_deleted=f
+
+===== (B) ACTION — delete the file on the lab machine, then rescan via the front door =====
+$ sudo rm -f /srv/weather/main.py        # /srv/weather now holds only main.ts
+$ ONYX_TSS_TICKET=PRDCT-14204 scanner-flow-e2e/scan.sh linux   # posts through Kong key-auth
+
+  real onyx-scanner scan_run c4981836-0447-4817-9470-2618beed12f4:
+    MCP server found: mcpServers::weather-py     (python3 /srv/weather/main.py)   # STILL in config
+    MCP server found: mcpServers::weather-py-u   (python -u /srv/weather/main.py) #  (.claude.json)
+    mcp_file_fingerprint: local_mcp_servers=7, eligible=2, fingerprinted=2        # main.py NO LONGER
+                                                                                  #   fingerprintable
+    parity mcpServers members carrying fileContentHash: ONLY filemcp.js + weather/main.ts
+      -> weather-py / weather-py-u ship NO fileContentHash now (the file is gone → empty hash)
+    "Scan completed successfully"   payloads_sent=2
+  (full transcript: /tmp/at1-lifecycle-scan.txt; the server is still CONFIGURED, so the scanner
+   still reports it — the change is only that its content can no longer be read.)
+
+===== (C) AFTER — read back the DB =====
+-- assets for the identity --
+ id  | name                               | app_definition_id                        | version   | is_representative(inv) | is_deleted | updated_at
+  82 | Local MCP Server (weather/main.py) | local:<tenant>:weather/main.py           | 7c1052fc… | t                      | f          | 19:08 (unchanged)
+ 163 | Local MCP Server (weather/main.py) | local:<tenant>:weather/main.py           | unknown   | f                      | f          | 23:35 (new version row)
+-- connections --
+ asset_connections id 44  (agent 23 -> mcp 82)   is_deleted = t   <- old content-version connection RETIRED
+ asset_connections id 103 (agent 23 -> mcp 163)  is_deleted = f   <- active connection MOVED to the stale version
+
+===== (D) DUPLICATE GUARD — the inventory read model (what the UI shows) =====
+-- SELECT count(*) FROM asset_inventory
+--   WHERE app_definition_id='local:<tenant>:weather/main.py'
+--     AND is_representative=true AND is_deleted=false;
+ count
+-------
+     1
+  => EXACTLY ONE representative, non-deleted inventory row. The UI shows ONE weather/main.py
+     server — NOT duplicated. (This matches the at6 post-migration UI capture of one row per
+     converged server.) Both underlying asset rows (82, 163) carry the SAME app_definition_id and
+     are collapsed by the platform's pre-existing MCP version-history aggregation
+     (asset_inventory.is_aggregated_mcp_server=t); a content change is a new *version* of the same
+     identity, never a second identity.
+
+===== (E) IDENTITY DID NOT FORK / no bare-interpreter row re-created =====
+-- SELECT id,name,app_definition_id FROM assets
+--   WHERE app_definition_id IN ('python3','python') AND is_deleted=false;
+ (0 rows)
+  => deleting the file created NO live bare-interpreter asset and NO second identity. Every row
+     for this server is keyed by the script name 'weather/main.py'.
+
+################################################################
+# VERDICT (at1 lifecycle):
+#  * NOT DUPLICATED  — exactly one representative inventory row for the identity. ✓
+#  * GOES STALE      — the content digest is now 'unknown' (file unreadable) and the active
+#                      agent connection moved to that stale version; the old content-versioned
+#                      connection is soft-retired. ✓
+#  * IDENTITY STABLE — one app_definition_id (local:<tenant>:weather/main.py), name-derived,
+#                      survives the file deletion; no interpreter-keyed fork. ✓
+# The old interpreter-keyed bug would have produced a SECOND, differently-keyed identity here;
+# it does not. This is read back from the DB + inventory read model, not asserted from a unit test.
+################################################################
